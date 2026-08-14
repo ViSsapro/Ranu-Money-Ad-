@@ -7,41 +7,52 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-6">
 
-    <div class="max-w-md mx-auto bg-slate-800 border border-slate-700 rounded-3xl p-6 shadow-2xl text-center">
+    <div class="w-full max-w-md bg-slate-800 border border-slate-700/80 rounded-3xl p-6 shadow-2xl text-center">
         <!-- User Avatar -->
-        <img id="user-img" class="w-20 h-20 rounded-full mx-auto border-2 border-amber-400 mb-4 shadow-lg" src="https://via.placeholder.com/80" alt="Profile">
+        <img id="user-img" class="w-20 h-20 rounded-full mx-auto border-2 border-amber-400 mb-4 shadow-lg object-cover" src="https://ui-avatars.com/api/?name=User&background=f59e0b&color=fff" alt="Profile">
         
         <h2 class="text-xl font-bold text-white">Welcome Back!</h2>
-        <p id="user-name" class="text-amber-400 font-semibold text-lg"></p>
-        <p id="user-email" class="text-slate-400 text-xs mb-6"></p>
+        <p id="user-name" class="text-amber-400 font-semibold text-lg mt-1">Loading...</p>
+        <p id="user-email" class="text-slate-400 text-xs mb-6">Loading...</p>
 
-        <div class="bg-slate-900 p-4 rounded-2xl border border-slate-700/60 mb-6">
+        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-700/60 mb-6">
             <span class="text-xs text-slate-400">Total Balance</span>
             <h1 class="text-3xl font-black text-emerald-400 mt-1">Rs. 0.00</h1>
         </div>
 
-        <button onclick="logout()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-semibold py-2.5 rounded-full text-xs transition">
+        <button onclick="logout()" class="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-semibold py-3 rounded-full text-xs transition-all duration-300">
             <i class="fa-solid fa-right-from-bracket mr-2"></i>Logout
         </button>
     </div>
 
     <script>
-        // Load User Data from Local Storage
-        const name = localStorage.getItem("user_name");
-        const email = localStorage.getItem("user_email");
-        const pic = localStorage.getItem("user_pic");
+        // Check Login Data on Page Load
+        window.onload = function() {
+            const name = localStorage.getItem("user_name");
+            const email = localStorage.getItem("user_email");
+            const pic = localStorage.getItem("user_pic");
 
-        if(!email) {
-            // Unauthenticated User Redirect back to Login
-            window.location.href = "index.html";
-        } else {
-            document.getElementById("user-name").innerText = name;
+            // User නොමැති නම් නැවත Sign In පිටුවට යවන්න
+            if (!email) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Text values එකතු කිරීම
+            document.getElementById("user-name").innerText = name || "User";
             document.getElementById("user-email").innerText = email;
-            if(pic) document.getElementById("user-img").src = pic;
-        }
 
+            // Google Profile Pic එකක් තිබේ නම් එය පෙන්වීම, නැත්නම් Avatar එකක් හදා ගැනීම
+            if (pic && pic !== "null" && pic !== "undefined") {
+                document.getElementById("user-img").src = pic;
+            } else {
+                document.getElementById("user-img").src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name || 'User')}&background=f59e0b&color=fff`;
+            }
+        };
+
+        // Logout Action
         function logout() {
             localStorage.clear();
             window.location.href = "index.html";
