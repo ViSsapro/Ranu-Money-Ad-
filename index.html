@@ -150,12 +150,12 @@
                         <span id="user-balance" class="text-sm font-bold text-emerald-400">$0.0000</span>
                     </div>
 
-                    <!-- Dynamic Profile & Logout Button -->
-                    <div class="flex items-center space-x-2 bg-slate-700/60 px-3 py-1 rounded-xl border border-slate-600">
+                    <!-- Dynamic Profile Button (Click to Open Profile Modal) -->
+                    <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-slate-700/60 hover:bg-slate-700 px-3 py-1 rounded-xl border border-slate-600 transition focus:outline-none">
                         <img id="nav-user-pic" src="" class="w-6 h-6 rounded-full hidden" alt="Profile Pic">
                         <i id="nav-user-icon" class="fa-solid fa-user-circle text-amber-400 text-lg"></i>
                         <span id="nav-user-name" class="text-xs font-semibold text-white max-w-[100px] truncate">User</span>
-                    </div>
+                    </button>
 
                     <button onclick="handleLogout()" title="Logout" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-xs px-2.5 py-1.5 rounded-lg transition">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -256,6 +256,13 @@
                 <h2 class="text-lg font-bold text-white mb-4">Request Payout</h2>
                 <form onsubmit="handleWithdraw(event)" class="max-w-md space-y-4">
                     <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Your Account User ID</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="withdraw-user-id" required placeholder="User ID" class="bg-slate-900/80 border border-slate-700 text-amber-400 font-mono text-sm rounded-lg p-2.5 w-full">
+                            <button type="button" onclick="fillWithdrawID()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg text-slate-200 transition whitespace-nowrap">Use My ID</button>
+                        </div>
+                    </div>
+                    <div>
                         <label class="block text-xs font-medium text-slate-400 mb-1">Select Payment Gateway</label>
                         <select class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
                             <option>Binance Pay (Crypto / USDT)</option>
@@ -285,6 +292,61 @@
             <p>© 2026 Ranu Money Ad Network. All rights reserved.</p>
         </footer>
     </div>
+
+
+    <!-- ========================================== -->
+    <!-- 3. USER PROFILE POPUP MODAL                -->
+    <!-- ========================================== -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="relative w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl">
+            <!-- Close Button -->
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- User Avatar Header -->
+            <div class="text-center mb-5">
+                <div class="relative inline-block mb-3">
+                    <img id="modal-user-pic" src="" class="w-20 h-20 rounded-full border-2 border-amber-400 hidden mx-auto" alt="Avatar">
+                    <i id="modal-user-icon" class="fa-solid fa-user-circle text-6xl text-amber-400"></i>
+                </div>
+                <h3 id="modal-user-name" class="text-lg font-bold text-white">User Name</h3>
+                <p id="modal-user-email" class="text-xs text-slate-400">user@example.com</p>
+            </div>
+
+            <!-- Profile Info Details -->
+            <div class="space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 mb-5">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Account User ID</span>
+                    <div class="flex items-center space-x-1">
+                        <span id="modal-user-id" class="font-mono text-amber-400 font-bold">RM-000000</span>
+                        <button onclick="copyUserId()" title="Copy User ID" class="text-slate-400 hover:text-amber-400 p-1">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Account Status</span>
+                    <span class="text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">Verified ✓</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Account Tier</span>
+                    <span class="text-amber-400 font-bold">Bronze Level</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2">
+                <button onclick="closeProfileModal(); switchTab('withdraw-sec');" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">
+                    Go to Withdraw
+                </button>
+                <button onclick="handleLogout()" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-semibold py-2 rounded-xl text-xs transition">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <!-- ========================================== -->
     <!-- JS APPLICATION LOGIC                       -->
@@ -328,6 +390,16 @@
             generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10);
         };
 
+        // Unique User ID Generator
+        function getOrCreateUserId() {
+            let userId = localStorage.getItem("user_id");
+            if (!userId) {
+                userId = "RM-" + Math.floor(100000 + Math.random() * 900000);
+                localStorage.setItem("user_id", userId);
+            }
+            return userId;
+        }
+
         // Switch Auth Form Tabs
         function switchAuthTab(tab) {
             currentTab = tab;
@@ -370,6 +442,7 @@
                 localStorage.setItem("user_name", user.name);
                 localStorage.setItem("user_email", user.email);
                 localStorage.setItem("user_pic", user.picture || "");
+                getOrCreateUserId();
 
                 loadDashboardView();
             } catch (err) {
@@ -403,6 +476,7 @@
             } else {
                 localStorage.setItem("user_name", "User +94" + phone);
                 localStorage.setItem("user_email", "+94" + phone);
+                getOrCreateUserId();
                 loadDashboardView();
             }
         }
@@ -425,6 +499,7 @@
             } else {
                 localStorage.setItem("user_name", name);
                 localStorage.setItem("user_email", "+94" + phone);
+                getOrCreateUserId();
                 loadDashboardView();
             }
         }
@@ -436,9 +511,11 @@
 
             const name = localStorage.getItem("user_name") || "User";
             const pic = localStorage.getItem("user_pic");
+            const userId = getOrCreateUserId();
 
             document.getElementById('nav-user-name').innerText = name;
             document.getElementById('dash-welcome-name').innerText = name;
+            document.getElementById('withdraw-user-id').value = userId;
 
             if (pic) {
                 const imgEl = document.getElementById('nav-user-pic');
@@ -446,6 +523,42 @@
                 imgEl.classList.remove('hidden');
                 document.getElementById('nav-user-icon').classList.add('hidden');
             }
+        }
+
+        // Profile Modal Logic
+        function openProfileModal() {
+            const name = localStorage.getItem("user_name") || "User";
+            const email = localStorage.getItem("user_email") || "Not Provided";
+            const pic = localStorage.getItem("user_pic");
+            const userId = getOrCreateUserId();
+
+            document.getElementById('modal-user-name').innerText = name;
+            document.getElementById('modal-user-email').innerText = email;
+            document.getElementById('modal-user-id').innerText = userId;
+
+            if (pic) {
+                const imgEl = document.getElementById('modal-user-pic');
+                imgEl.src = pic;
+                imgEl.classList.remove('hidden');
+                document.getElementById('modal-user-icon').classList.add('hidden');
+            }
+
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function copyUserId() {
+            const userId = getOrCreateUserId();
+            navigator.clipboard.writeText(userId);
+            alert("User ID Copied: " + userId);
+        }
+
+        function fillWithdrawID() {
+            const userId = getOrCreateUserId();
+            document.getElementById('withdraw-user-id').value = userId;
         }
 
         // Logout Action
@@ -524,7 +637,8 @@
 
         function handleWithdraw(e) {
             e.preventDefault();
-            alert("Withdrawal request submitted successfully!");
+            const userId = document.getElementById('withdraw-user-id').value;
+            alert("Withdrawal request for User ID: " + userId + " submitted successfully!");
         }
     </script>
 </body>
