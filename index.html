@@ -7,6 +7,7 @@
     <!-- Tailwind CSS & FontAwesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Identity Services Library -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -27,6 +28,7 @@
     <div id="auth-container" class="relative z-10 w-full min-h-screen flex items-center justify-center p-4">
         <div class="relative w-full max-w-md bg-slate-800/80 backdrop-blur-xl border border-slate-700/80 rounded-3xl p-8 shadow-2xl">
             
+            <!-- Logo & Header -->
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center bg-gradient-to-r from-amber-400 to-yellow-600 w-14 h-14 rounded-2xl shadow-lg mb-3 text-slate-950 font-black text-xl">
                     <i class="fa-solid fa-coins"></i>
@@ -35,6 +37,7 @@
                 <p id="sub-title" class="text-slate-400 text-xs">Sign in or create an account to start earning</p>
             </div>
 
+            <!-- Login / Register Switch Tabs -->
             <div class="grid grid-cols-2 bg-slate-900/80 p-1 rounded-2xl mb-6 border border-slate-700/60">
                 <button onclick="switchAuthTab('login')" id="tab-login" class="py-2.5 rounded-xl text-xs font-bold text-amber-400 bg-slate-800 shadow transition-all duration-300">
                     Sign In
@@ -44,8 +47,9 @@
                 </button>
             </div>
 
+            <!-- Google Sign-In Container -->
             <div class="mb-5 relative">
-                <button id="custom-google-btn" onclick="triggerGoogleSignIn()" class="w-full bg-slate-700/80 hover:bg-slate-700 border border-slate-600 text-white font-medium py-3 px-6 rounded-full flex items-center justify-center space-x-3 shadow-md hover:shadow-lg transition-all duration-300">
+                <button id="custom-google-btn" onclick="triggerGoogleSignIn()" class="w-full bg-slate-700/80 hover:bg-slate-700 border border-slate-600 text-white font-medium py-3 px-6 rounded-full flex items-center justify-center space-x-3 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.1 9 5 12 5z"/>
                         <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
@@ -57,64 +61,78 @@
                 <div id="hidden-g-btn" class="hidden"></div>
             </div>
 
+            <!-- Divider -->
             <div class="flex items-center my-5">
                 <div class="flex-grow border-t border-slate-700"></div>
                 <span class="px-3 text-slate-500 text-[11px] font-semibold uppercase">Or with phone number</span>
                 <div class="flex-grow border-t border-slate-700"></div>
             </div>
 
-            <!-- LOGIN FORM -->
+            <!-- FORM 1: LOGIN FORM -->
             <form id="login-form" onsubmit="handlePhoneLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1.5">Phone Number</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm font-semibold">+94</span>
-                        <input type="tel" id="login-phone" pattern="[0-9]{9}" required placeholder="712345678" class="w-full pl-14 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+                        <input type="tel" id="login-phone" pattern="[0-9]{9}" required placeholder="712345678" class="w-full pl-14 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
                     </div>
                 </div>
 
                 <div id="login-otp-section" class="hidden space-y-1.5">
                     <label class="block text-xs font-medium text-slate-400">Enter OTP Code</label>
-                    <input type="text" id="login-otp" maxlength="6" placeholder="123456" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm tracking-widest text-center focus:outline-none focus:border-amber-500">
+                    <input type="text" id="login-otp" maxlength="6" placeholder="123456" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm tracking-widest text-center placeholder-slate-600 focus:outline-none focus:border-amber-500 transition">
                 </div>
 
-                <button type="submit" id="login-submit-btn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold py-3 px-6 rounded-full text-sm shadow-lg transition">
+                <button type="submit" id="login-submit-btn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-bold py-3 px-6 rounded-full text-sm shadow-lg transition duration-300">
                     Send OTP Code
                 </button>
             </form>
 
-            <!-- REGISTER FORM -->
+            <!-- FORM 2: CREATE ACCOUNT FORM (REGISTER) -->
             <form id="register-form" onsubmit="handleRegister(event)" class="hidden space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1.5">Full Name</label>
-                    <input type="text" id="reg-name" required placeholder="Kasun Perera" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+                    <input type="text" id="reg-name" required placeholder="Kasun Perera" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
                 </div>
 
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1.5">Phone Number</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 text-sm font-semibold">+94</span>
-                        <input type="tel" id="reg-phone" pattern="[0-9]{9}" required placeholder="712345678" class="w-full pl-14 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm focus:outline-none focus:border-amber-500">
+                        <input type="tel" id="reg-phone" pattern="[0-9]{9}" required placeholder="712345678" class="w-full pl-14 pr-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition">
                     </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Referral Code (Optional)</label>
+                    <input type="text" id="reg-ref" placeholder="e.g. user8923" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm placeholder-slate-600 focus:outline-none focus:border-amber-500 transition">
                 </div>
 
                 <div id="reg-otp-section" class="hidden space-y-1.5">
                     <label class="block text-xs font-medium text-slate-400">Enter Verification OTP</label>
-                    <input type="text" id="reg-otp" maxlength="6" placeholder="123456" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm tracking-widest text-center focus:outline-none focus:border-amber-500">
+                    <input type="text" id="reg-otp" maxlength="6" placeholder="123456" class="w-full px-4 py-3 bg-slate-900/90 border border-slate-700 rounded-xl text-white text-sm tracking-widest text-center placeholder-slate-600 focus:outline-none focus:border-amber-500 transition">
                 </div>
 
-                <button type="submit" id="reg-submit-btn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full text-sm shadow-lg transition">
+                <button type="submit" id="reg-submit-btn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-full text-sm shadow-lg transition duration-300">
                     Register & Get Bonus
                 </button>
             </form>
+
+            <p class="mt-6 text-center text-xs text-slate-500">
+                By proceeding, you agree to our 
+                <a href="#" class="text-amber-400 hover:underline">Terms</a> and 
+                <a href="#" class="text-amber-400 hover:underline">Privacy Policy</a>.
+            </p>
         </div>
     </div>
+
 
     <!-- ========================================== -->
     <!-- 2. MAIN DASHBOARD CONTAINER (AFTER LOGIN)  -->
     <!-- ========================================== -->
     <div id="dashboard-container" class="hidden relative z-10 w-full min-h-screen flex flex-col justify-between">
         
+        <!-- Top Navigation Bar -->
         <nav class="bg-slate-800/90 border-b border-slate-700 sticky top-0 z-50 px-4 py-3 shadow-lg">
             <div class="max-w-6xl mx-auto flex justify-between items-center">
                 <div class="flex items-center space-x-2">
@@ -125,21 +143,18 @@
                         Ranu Money Ad
                     </span>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-3 md:space-x-4">
                     <div class="bg-slate-700/80 px-3 py-1.5 rounded-full border border-amber-500/30 flex items-center space-x-2">
                         <i class="fa-solid fa-wallet text-amber-400"></i>
+                        <span class="text-xs text-slate-300 hidden sm:inline">Balance:</span>
                         <span id="user-balance" class="text-sm font-bold text-emerald-400">$0.0000</span>
                     </div>
 
-                    <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-slate-700/60 hover:bg-slate-700 px-3 py-1 rounded-xl border border-slate-600 transition">
-                        <img id="nav-user-pic" src="" class="w-6 h-6 rounded-full hidden">
+                    <!-- Dynamic Profile Button (Click to Open Profile Modal) -->
+                    <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-slate-700/60 hover:bg-slate-700 px-3 py-1 rounded-xl border border-slate-600 transition focus:outline-none">
+                        <img id="nav-user-pic" src="" class="w-6 h-6 rounded-full hidden" alt="Profile Pic">
                         <i id="nav-user-icon" class="fa-solid fa-user-circle text-amber-400 text-lg"></i>
                         <span id="nav-user-name" class="text-xs font-semibold text-white max-w-[100px] truncate">User</span>
-                    </button>
-
-                    <!-- ADMIN PANEL TOGGLE BUTTON -->
-                    <button onclick="openAdminPanel()" title="Admin Control" class="bg-purple-600/30 hover:bg-purple-600/50 text-purple-300 border border-purple-500/40 text-xs px-2.5 py-1.5 rounded-lg transition">
-                        <i class="fa-solid fa-user-shield"></i>
                     </button>
 
                     <button onclick="handleLogout()" title="Logout" class="bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 text-xs px-2.5 py-1.5 rounded-lg transition">
@@ -149,77 +164,120 @@
             </div>
         </nav>
 
+        <!-- Main Content Area -->
         <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-grow">
             
+            <!-- Welcome Hero Banner -->
             <div class="bg-gradient-to-r from-amber-500/20 via-slate-800 to-slate-800 border border-amber-500/30 rounded-2xl p-6 mb-8 flex flex-col md:flex-row items-center justify-between shadow-xl">
-                <div>
-                    <h1 class="text-2xl font-bold text-white mb-1">
+                <div class="mb-4 md:mb-0">
+                    <h1 class="text-2xl md:text-3xl font-bold text-white mb-1">
                         Welcome, <span id="dash-welcome-name" class="text-amber-400">Partner</span>! 👋
                     </h1>
-                    <p class="text-slate-300 text-sm">Complete daily tasks to maximize profit.</p>
+                    <p class="text-slate-300 text-sm">Complete 10 Ads, 10 Captchas, and 10 Website Visits daily to maximize profit.</p>
                 </div>
-                <button onclick="switchTab('withdraw-sec')" class="mt-4 md:mt-0 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg">
+                <button onclick="switchTab('withdraw-sec')" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-lg transition transform hover:scale-105">
                     <i class="fa-solid fa-money-bill-transfer mr-2"></i> Withdraw Cash
                 </button>
             </div>
 
-            <!-- Stats -->
+            <!-- Dashboard Stats Grid -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                    <p class="text-slate-400 text-xs">Today's Earnings</p>
+                    <p class="text-slate-400 text-xs mb-1">Today's Earnings</p>
                     <p id="today-earning" class="text-xl font-bold text-amber-400">$0.0000</p>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                    <p class="text-slate-400 text-xs">Tasks Completed</p>
+                    <p class="text-slate-400 text-xs mb-1">Tasks Completed</p>
                     <p id="task-count" class="text-xl font-bold text-blue-400">0 / 30</p>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                    <p class="text-slate-400 text-xs">Referral Bonus</p>
+                    <p class="text-slate-400 text-xs mb-1">Referral Bonus</p>
                     <p class="text-xl font-bold text-purple-400">$0.8000</p>
                 </div>
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                    <p class="text-slate-400 text-xs">Account Level</p>
+                    <p class="text-slate-400 text-xs mb-1">Account Level</p>
                     <p class="text-xl font-bold text-emerald-400">Bronze 🌟</p>
                 </div>
             </div>
 
-            <!-- Navigation Tabs -->
+            <!-- Section Tabs -->
             <div class="flex space-x-2 border-b border-slate-700 mb-6">
-                <button onclick="switchTab('tasks-sec')" id="btn-tasks" class="py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400">Daily Tasks</button>
-                <button onclick="switchTab('withdraw-sec')" id="btn-withdraw" class="py-2 px-4 font-semibold text-slate-400">Withdraw</button>
+                <button onclick="switchTab('tasks-sec')" id="btn-tasks" class="py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition">
+                    <i class="fa-solid fa-list-check mr-2"></i> Daily Tasks (30)
+                </button>
+                <button onclick="switchTab('referral-sec')" id="btn-referral" class="py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition">
+                    <i class="fa-solid fa-users mr-2"></i> Referral Program
+                </button>
+                <button onclick="switchTab('withdraw-sec')" id="btn-withdraw" class="py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition">
+                    <i class="fa-solid fa-building-columns mr-2"></i> Withdraw
+                </button>
             </div>
 
-            <!-- SECTION 1: TASKS -->
+            <!-- SECTION 1: ALL TASKS LIST -->
             <div id="tasks-sec" class="space-y-8">
                 <div>
-                    <h2 class="text-lg font-bold text-amber-400 mb-3"><i class="fa-solid fa-video mr-2"></i> Watch Sponsor Video Ads</h2>
+                    <h2 class="text-lg font-bold text-amber-400 mb-3 flex items-center">
+                        <i class="fa-solid fa-video mr-2"></i> Watch Sponsor Video Ads (10 Available)
+                    </h2>
                     <div id="video-ads-container" class="space-y-3"></div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold text-blue-400 mb-3 flex items-center">
+                        <i class="fa-solid fa-keyboard mr-2"></i> Security Captchas (10 Available)
+                    </h2>
+                    <div id="captchas-container" class="space-y-3"></div>
+                </div>
+
+                <div>
+                    <h2 class="text-lg font-bold text-purple-400 mb-3 flex items-center">
+                        <i class="fa-solid fa-globe mr-2"></i> Visit Partner Websites (10 Available)
+                    </h2>
+                    <div id="websites-container" class="space-y-3"></div>
                 </div>
             </div>
 
-            <!-- SECTION 2: WITHDRAWAL FORM -->
+            <!-- SECTION 2: REFERRAL PROGRAM -->
+            <div id="referral-sec" class="hidden bg-slate-800 border border-slate-700 rounded-xl p-6">
+                <h2 class="text-lg font-bold text-white mb-2">Earn 10% Lifetime Commission</h2>
+                <p class="text-sm text-slate-400 mb-4">Share your personal referral link with friends and receive 10% of their earnings forever!</p>
+                
+                <div class="flex items-center space-x-2 max-w-lg mb-4">
+                    <input type="text" id="ref-link" readonly value="https://ranumoneyad.com/ref/user8923" class="bg-slate-900 border border-slate-700 text-slate-300 text-sm rounded-lg p-2.5 w-full">
+                    <button onclick="copyRefLink()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold text-xs px-4 py-3 rounded-lg transition">
+                        Copy
+                    </button>
+                </div>
+                <p id="copy-msg" class="text-xs text-emerald-400 hidden">✓ Link copied to clipboard!</p>
+            </div>
+
+            <!-- SECTION 3: WITHDRAWAL PAGE -->
             <div id="withdraw-sec" class="hidden bg-slate-800 border border-slate-700 rounded-xl p-6">
                 <h2 class="text-lg font-bold text-white mb-4">Request Payout</h2>
                 <form onsubmit="handleWithdraw(event)" class="max-w-md space-y-4">
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Your User ID</label>
-                        <input type="text" id="withdraw-user-id" readonly class="bg-slate-900 border border-slate-700 text-amber-400 font-mono text-sm rounded-lg p-2.5 w-full">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Your Account User ID</label>
+                        <div class="flex space-x-2">
+                            <input type="text" id="withdraw-user-id" required placeholder="User ID" class="bg-slate-900/80 border border-slate-700 text-amber-400 font-mono text-sm rounded-lg p-2.5 w-full">
+                            <button type="button" onclick="fillWithdrawID()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-2 rounded-lg text-slate-200 transition whitespace-nowrap">Use My ID</button>
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Select Payment Gateway</label>
-                        <select id="withdraw-gateway" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
-                            <option value="Binance Pay">Binance Pay (Crypto / USDT)</option>
-                            <option value="Payeer Wallet">Payeer Wallet</option>
-                            <option value="Bank Transfer">Sri Lankan Bank Transfer (LKR)</option>
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Select Payment Gateway</label>
+                        <select class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
+                            <option>Binance Pay (Crypto / USDT)</option>
+                            <option>Payeer Wallet</option>
+                            <option>FaucetPay</option>
+                            <option>Sri Lankan Bank Transfer (LKR)</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Account / Wallet Details</label>
-                        <input type="text" id="withdraw-details" required placeholder="Binance ID / Bank Account Number" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Account Number / Wallet Address</label>
+                        <input type="text" required placeholder="Enter ID or Bank Details" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
                     </div>
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Amount ($ USD)</label>
-                        <input type="number" step="0.001" min="0.1" id="withdraw-amount" required placeholder="0.100" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
+                        <label class="block text-xs font-medium text-slate-400 mb-1">Amount ($ USD)</label>
+                        <input type="number" step="0.001" min="0.1" required placeholder="Min payout: $1.00" class="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg p-2.5 w-full">
                     </div>
                     <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2.5 rounded-lg text-sm transition">
                         Submit Withdrawal Request
@@ -228,89 +286,111 @@
             </div>
 
         </main>
+
+        <!-- Footer -->
+        <footer class="bg-slate-800/60 border-t border-slate-700/60 text-center py-4 text-xs text-slate-500">
+            <p>© 2026 Ranu Money Ad Network. All rights reserved.</p>
+        </footer>
     </div>
 
-    <!-- ========================================== -->
-    <!-- 3. ADMIN PANEL MODAL                       -->
-    <!-- ========================================== -->
-    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-        <div class="relative w-full max-w-4xl bg-slate-800 border border-purple-500/40 rounded-2xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-700">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-purple-600/30 text-purple-400 p-2.5 rounded-xl border border-purple-500/30">
-                        <i class="fa-solid fa-user-shield text-xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-xl font-bold text-white">Admin Management Panel</h2>
-                        <p class="text-xs text-slate-400">Manage user payout requests</p>
-                    </div>
-                </div>
-                <button onclick="closeAdminPanel()" class="text-slate-400 hover:text-white text-lg">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
 
-            <!-- Withdrawal Requests Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs text-slate-300">
-                    <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold">
-                        <tr>
-                            <th class="p-3">User ID</th>
-                            <th class="p-3">Gateway</th>
-                            <th class="p-3">Account Details</th>
-                            <th class="p-3">Amount</th>
-                            <th class="p-3">Status</th>
-                            <th class="p-3 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-requests-table" class="divide-y divide-slate-700/60">
-                        <!-- Dynamic Rows -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- PROFILE MODAL -->
-    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80">
+    <!-- ========================================== -->
+    <!-- 3. USER PROFILE POPUP MODAL                -->
+    <!-- ========================================== -->
+    <div id="profile-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
         <div class="relative w-full max-w-sm bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-2xl">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+            <!-- Close Button -->
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
                 <i class="fa-solid fa-xmark"></i>
             </button>
+
+            <!-- User Avatar Header -->
             <div class="text-center mb-5">
-                <i id="modal-user-icon" class="fa-solid fa-user-circle text-6xl text-amber-400"></i>
-                <h3 id="modal-user-name" class="text-lg font-bold text-white mt-2">User Name</h3>
+                <div class="relative inline-block mb-3">
+                    <img id="modal-user-pic" src="" class="w-20 h-20 rounded-full border-2 border-amber-400 hidden mx-auto" alt="Avatar">
+                    <i id="modal-user-icon" class="fa-solid fa-user-circle text-6xl text-amber-400"></i>
+                </div>
+                <h3 id="modal-user-name" class="text-lg font-bold text-white">User Name</h3>
                 <p id="modal-user-email" class="text-xs text-slate-400">user@example.com</p>
             </div>
-            <div class="space-y-3 bg-slate-900 p-4 rounded-xl border border-slate-700 mb-5">
+
+            <!-- Profile Info Details -->
+            <div class="space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 mb-5">
                 <div class="flex justify-between items-center text-xs">
                     <span class="text-slate-400">Account User ID</span>
-                    <span id="modal-user-id" class="font-mono text-amber-400 font-bold">RM-000000</span>
+                    <div class="flex items-center space-x-1">
+                        <span id="modal-user-id" class="font-mono text-amber-400 font-bold">RM-000000</span>
+                        <button onclick="copyUserId()" title="Copy User ID" class="text-slate-400 hover:text-amber-400 p-1">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
                 </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Account Status</span>
+                    <span class="text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">Verified ✓</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400">Account Tier</span>
+                    <span class="text-amber-400 font-bold">Bronze Level</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2">
+                <button onclick="closeProfileModal(); switchTab('withdraw-sec');" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition">
+                    Go to Withdraw
+                </button>
+                <button onclick="handleLogout()" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-semibold py-2 rounded-xl text-xs transition">
+                    Logout
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Application Script -->
+
+    <!-- ========================================== -->
+    <!-- JS APPLICATION LOGIC                       -->
+    <!-- ========================================== -->
     <script>
-        let currentBalance = parseFloat(localStorage.getItem("user_balance")) || 1.5000;
+        let currentTab = 'login';
+        let isLoginOtpSent = false;
+        let isRegOtpSent = false;
+
+        let currentBalance = 0.0000;
         let todayEarning = 0.0000;
+        let completedTasksCount = 0;
 
         const GOOGLE_CLIENT_ID = "664887473384-oh8jv0rbigt8utuhmomn2rmkdgdt5vam.apps.googleusercontent.com";
 
+        // Initialize App & Session Management
         window.onload = function () {
+            // Check if user is already logged in
             const savedName = localStorage.getItem("user_name");
-            if (savedName) loadDashboardView();
-
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
-                google.accounts.id.renderButton(document.getElementById("hidden-g-btn"), { theme: "outline", size: "large" });
+            if (savedName) {
+                loadDashboardView();
             }
 
-            generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 5);
+            // Initialize Google SDK
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleCredentialResponse,
+                    auto_select: false
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById("hidden-g-btn"),
+                    { theme: "outline", size: "large" }
+                );
+            }
+
+            // Generate Daily Tasks
+            generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 10);
+            generateTasks('captchas-container', 'Complete Security Captcha', 'fa-keyboard', 'blue', 0.0020, 10);
+            generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10);
         };
 
+        // Unique User ID Generator
         function getOrCreateUserId() {
             let userId = localStorage.getItem("user_id");
             if (!userId) {
@@ -320,144 +400,245 @@
             return userId;
         }
 
+        // Switch Auth Form Tabs
+        function switchAuthTab(tab) {
+            currentTab = tab;
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+            const subTitle = document.getElementById('sub-title');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+                tabLogin.className = "py-2.5 rounded-xl text-xs font-bold text-amber-400 bg-slate-800 shadow transition-all duration-300";
+                tabRegister.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300";
+                subTitle.innerText = "Sign in to start earning daily cash";
+            } else {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+                tabRegister.className = "py-2.5 rounded-xl text-xs font-bold text-emerald-400 bg-slate-800 shadow transition-all duration-300";
+                tabLogin.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300";
+                subTitle.innerText = "Create a new account & claim welcome bonus";
+            }
+        }
+
+        // Google Authentication
+        function triggerGoogleSignIn() {
+            const hiddenBtn = document.getElementById("hidden-g-btn").querySelector("div[role=button], iframe");
+            if (hiddenBtn) {
+                hiddenBtn.click();
+            } else if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.prompt();
+            } else {
+                alert("Google SDK loading... Please try again.");
+            }
+        }
+
+        function handleCredentialResponse(response) {
+            try {
+                const user = parseJwt(response.credential);
+                localStorage.setItem("user_name", user.name);
+                localStorage.setItem("user_email", user.email);
+                localStorage.setItem("user_pic", user.picture || "");
+                getOrCreateUserId();
+
+                loadDashboardView();
+            } catch (err) {
+                console.error("Authentication Error:", err);
+            }
+        }
+
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        // Phone Login Action
+        function handlePhoneLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('login-submit-btn');
+            const otpSec = document.getElementById('login-otp-section');
+            const phone = document.getElementById('login-phone').value;
+
+            if (!isLoginOtpSent) {
+                btn.innerText = "Sending Code...";
+                setTimeout(() => {
+                    isLoginOtpSent = true;
+                    otpSec.classList.remove('hidden');
+                    btn.innerText = "Verify OTP & Sign In";
+                }, 1000);
+            } else {
+                localStorage.setItem("user_name", "User +94" + phone);
+                localStorage.setItem("user_email", "+94" + phone);
+                getOrCreateUserId();
+                loadDashboardView();
+            }
+        }
+
+        // Registration Action
+        function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('reg-submit-btn');
+            const otpSec = document.getElementById('reg-otp-section');
+            const name = document.getElementById('reg-name').value;
+            const phone = document.getElementById('reg-phone').value;
+
+            if (!isRegOtpSent) {
+                btn.innerText = "Sending Verification OTP...";
+                setTimeout(() => {
+                    isRegOtpSent = true;
+                    otpSec.classList.remove('hidden');
+                    btn.innerText = "Verify & Complete Signup";
+                }, 1000);
+            } else {
+                localStorage.setItem("user_name", name);
+                localStorage.setItem("user_email", "+94" + phone);
+                getOrCreateUserId();
+                loadDashboardView();
+            }
+        }
+
+        // View Switcher: Show Dashboard and Update Profile Data
         function loadDashboardView() {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('dashboard-container').classList.remove('hidden');
 
             const name = localStorage.getItem("user_name") || "User";
+            const pic = localStorage.getItem("user_pic");
             const userId = getOrCreateUserId();
 
             document.getElementById('nav-user-name').innerText = name;
             document.getElementById('dash-welcome-name').innerText = name;
             document.getElementById('withdraw-user-id').value = userId;
-            document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
+
+            if (pic) {
+                const imgEl = document.getElementById('nav-user-pic');
+                imgEl.src = pic;
+                imgEl.classList.remove('hidden');
+                document.getElementById('nav-user-icon').classList.add('hidden');
+            }
         }
 
-        // Handle Withdrawal Submit
-        function handleWithdraw(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+        // Profile Modal Logic
+        function openProfileModal() {
+            const name = localStorage.getItem("user_name") || "User";
+            const email = localStorage.getItem("user_email") || "Not Provided";
+            const pic = localStorage.getItem("user_pic");
+            const userId = getOrCreateUserId();
 
-            if (amount > currentBalance) {
-                alert("Insufficient Balance!");
-                return;
+            document.getElementById('modal-user-name').innerText = name;
+            document.getElementById('modal-user-email').innerText = email;
+            document.getElementById('modal-user-id').innerText = userId;
+
+            if (pic) {
+                const imgEl = document.getElementById('modal-user-pic');
+                imgEl.src = pic;
+                imgEl.classList.remove('hidden');
+                document.getElementById('modal-user-icon').classList.add('hidden');
             }
 
-            const requestData = {
-                id: Date.now(),
-                userId: getOrCreateUserId(),
-                gateway: document.getElementById('withdraw-gateway').value,
-                details: document.getElementById('withdraw-details').value,
-                amount: amount,
-                status: 'Pending'
-            };
-
-            let requests = JSON.parse(localStorage.getItem('withdraw_requests')) || [];
-            requests.push(requestData);
-            localStorage.setItem('withdraw_requests', JSON.stringify(requests));
-
-            alert("Withdrawal request submitted to Admin!");
-            document.getElementById('withdraw-details').value = "";
-            document.getElementById('withdraw-amount').value = "";
+            document.getElementById('profile-modal').classList.remove('hidden');
         }
 
-        // Admin Modal Controls
-        function openAdminPanel() {
-            renderAdminRequests();
-            document.getElementById('admin-modal').classList.remove('hidden');
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
         }
 
-        function closeAdminPanel() {
-            document.getElementById('admin-modal').classList.add('hidden');
+        function copyUserId() {
+            const userId = getOrCreateUserId();
+            navigator.clipboard.writeText(userId);
+            alert("User ID Copied: " + userId);
         }
 
-        function renderAdminRequests() {
-            const table = document.getElementById('admin-requests-table');
-            const requests = JSON.parse(localStorage.getItem('withdraw_requests')) || [];
-            table.innerHTML = "";
-
-            if (requests.length === 0) {
-                table.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-500">No withdrawal requests found.</td></tr>`;
-                return;
-            }
-
-            requests.forEach(req => {
-                let statusBadge = `<span class="bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-2 py-0.5 rounded">Pending</span>`;
-                if(req.status === 'Approved') statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded">Approved ✓</span>`;
-                if(req.status === 'Rejected') statusBadge = `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded">Rejected ✕</span>`;
-
-                const actionBtns = req.status === 'Pending' ? `
-                    <button onclick="updateRequestStatus(${req.id}, 'Approved', ${req.amount})" class="bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded mr-1">Approve</button>
-                    <button onclick="updateRequestStatus(${req.id}, 'Rejected', 0)" class="bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/30 px-2 py-1 rounded">Reject</button>
-                ` : `<span class="text-slate-500">Completed</span>`;
-
-                table.innerHTML += `
-                    <tr>
-                        <td class="p-3 font-mono text-amber-400">${req.userId}</td>
-                        <td class="p-3">${req.gateway}</td>
-                        <td class="p-3">${req.details}</td>
-                        <td class="p-3 font-bold text-emerald-400">$${req.amount.toFixed(4)}</td>
-                        <td class="p-3">${statusBadge}</td>
-                        <td class="p-3 text-center">${actionBtns}</td>
-                    </tr>
-                `;
-            });
+        function fillWithdrawID() {
+            const userId = getOrCreateUserId();
+            document.getElementById('withdraw-user-id').value = userId;
         }
 
-        function updateRequestStatus(reqId, status, amount) {
-            let requests = JSON.parse(localStorage.getItem('withdraw_requests')) || [];
-            requests = requests.map(req => {
-                if (req.id === reqId) {
-                    req.status = status;
-                }
-                return req;
-            });
-
-            if (status === 'Approved') {
-                currentBalance -= amount;
-                localStorage.setItem("user_balance", currentBalance);
-                document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
-            }
-
-            localStorage.setItem('withdraw_requests', JSON.stringify(requests));
-            renderAdminRequests();
+        // Logout Action
+        function handleLogout() {
+            localStorage.clear();
+            location.reload();
         }
 
-        function openProfileModal() { document.getElementById('profile-modal').classList.remove('hidden'); }
-        function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
-        function handleLogout() { localStorage.clear(); location.reload(); }
-
+        // Dashboard Tasks Logic
         function generateTasks(containerId, titlePrefix, iconClass, color, reward, count) {
             const container = document.getElementById(containerId);
             for (let i = 1; i <= count; i++) {
-                container.innerHTML += `
-                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex justify-between items-center">
-                        <div class="flex items-center space-x-3">
-                            <i class="fa-solid ${iconClass} text-${color}-400 text-xl"></i>
+                const taskHTML = `
+                    <div class="bg-slate-800 border border-slate-700 hover:border-${color}-500/50 rounded-xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center transition">
+                        <div class="flex items-center space-x-4 mb-3 md:mb-0">
+                            <div class="bg-${color}-500/10 text-${color}-400 p-3 rounded-lg text-xl">
+                                <i class="fa-solid ${iconClass}"></i>
+                            </div>
                             <div>
                                 <h3 class="font-semibold text-white">${titlePrefix} #${i}</h3>
-                                <p class="text-xs text-slate-400">Earn +$${reward.toFixed(4)}</p>
+                                <p class="text-xs text-slate-400">Complete task #${i} to receive reward in your wallet.</p>
                             </div>
                         </div>
-                        <button onclick="completeTask(this, ${reward})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-1.5 rounded-lg text-xs">Start Task</button>
+                        <div class="flex items-center space-x-4 w-full md:w-auto justify-between">
+                            <span class="text-emerald-400 font-bold text-sm">+ $${reward.toFixed(4)}</span>
+                            <button onclick="completeTask(this, ${reward})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition">
+                                Start Task
+                            </button>
+                        </div>
                     </div>
                 `;
+                container.innerHTML += taskHTML;
             }
-        }
-
-        function completeTask(btn, reward) {
-            btn.disabled = true;
-            btn.innerText = "Completed ✓";
-            btn.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-4 py-1.5 rounded-lg text-xs";
-            currentBalance += reward;
-            localStorage.setItem("user_balance", currentBalance);
-            document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
         }
 
         function switchTab(tabId) {
             document.getElementById('tasks-sec').classList.add('hidden');
+            document.getElementById('referral-sec').classList.add('hidden');
             document.getElementById('withdraw-sec').classList.add('hidden');
+            
             document.getElementById(tabId).classList.remove('hidden');
+
+            document.getElementById('btn-tasks').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
+            document.getElementById('btn-referral').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
+            document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
+
+            if(tabId === 'tasks-sec') document.getElementById('btn-tasks').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
+            if(tabId === 'referral-sec') document.getElementById('btn-referral').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
+            if(tabId === 'withdraw-sec') document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
+        }
+
+        function completeTask(buttonEl, reward) {
+            buttonEl.disabled = true;
+            buttonEl.innerText = "Processing...";
+            buttonEl.className = "bg-slate-700 text-slate-400 font-bold px-4 py-2 rounded-lg text-xs cursor-not-allowed";
+
+            setTimeout(() => {
+                currentBalance += reward;
+                todayEarning += reward;
+                completedTasksCount++;
+                
+                document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
+                document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
+                document.getElementById('task-count').innerText = completedTasksCount + " / 30";
+
+                buttonEl.innerText = "Completed ✓";
+                buttonEl.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-4 py-2 rounded-lg text-xs";
+            }, 1200);
+        }
+
+        function copyRefLink() {
+            const copyText = document.getElementById("ref-link");
+            navigator.clipboard.writeText(copyText.value);
+            document.getElementById("copy-msg").classList.remove("hidden");
+        }
+
+        function handleWithdraw(e) {
+            e.preventDefault();
+            const userId = document.getElementById('withdraw-user-id').value;
+            alert("Withdrawal request for User ID: " + userId + " submitted successfully!");
         }
     </script>
 </body>
