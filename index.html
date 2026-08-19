@@ -1,763 +1,132 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranu Money Ad - Earn Money Online</title>
+    <title>Ranu Money Ad</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#fffbe6',
-                            100: '#fff3b3',
-                            500: '#f59e0b',
-                            600: '#d97706',
-                            900: '#451a03',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Identity Services Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.min.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-slate-950 text-white font-sans min-h-screen p-6">
 
-    <!-- TOP NAVIGATION -->
-    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="bg-gradient-to-tr from-amber-500 to-yellow-300 p-2 rounded-xl text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-coins"></i>
-                </div>
-                <span class="font-extrabold text-lg sm:text-xl tracking-tight bg-gradient-to-r from-white via-slate-200 to-amber-400 bg-clip-text text-transparent">
-                    Ranu Money Ad
-                </span>
-            </div>
-
-            <!-- Dashboard Profile Details (Logged In state) -->
-            <div id="nav-user-info" class="flex items-center space-x-3 sm:space-x-4">
-                <div class="hidden sm:flex items-center bg-slate-800/80 border border-slate-700/60 rounded-xl px-3 py-1.5 space-x-2">
-                    <i class="fa-solid fa-wallet text-amber-400 text-sm"></i>
-                    <span class="text-xs text-slate-400">Balance:</span>
-                    <span id="user-balance" class="text-sm font-bold text-emerald-400">$0.0000</span>
-                </div>
-                <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-700 transition">
-                    <div class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-xs overflow-hidden">
-                        <span id="nav-user-icon"><i class="fa-solid fa-user"></i></span>
-                        <img id="nav-user-pic" class="w-full h-full object-cover hidden" alt="User Avatar">
-                    </div>
-                    <span id="nav-user-name" class="text-xs font-semibold max-w-[100px] truncate">User</span>
-                </button>
-                <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 p-2 rounded-lg transition" title="Logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
+    <!-- HEADER / BALANCE SECTION -->
+    <div class="max-w-5xl mx-auto flex justify-between items-center bg-slate-900 p-4 rounded-2xl mb-8 border border-slate-800">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            <span class="text-amber-400 text-2xl">🪙</span> Ranu Money Ad
+        </h1>
+        <div class="flex items-center gap-4">
+            <div class="bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
+                <span class="text-slate-400 text-sm">Balance: </span>
+                <span id="user-balance" class="text-emerald-400 font-bold">$0.0050</span>
             </div>
         </div>
-    </header>
+    </div>
 
-    <!-- MAIN CONTENT CONTAINER -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        <!-- AUTHENTICATION CONTAINER (LOGIN / REGISTER) -->
-        <div id="auth-container" class="max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="text-center mb-8">
-                <h2 class="text-2xl font-black text-white mb-2">Welcome Back</h2>
-                <p id="sub-title" class="text-xs text-slate-400">Sign in to start earning daily cash</p>
-            </div>
+    <!-- MAIN CONTAINER -->
+    <div class="max-w-5xl mx-auto">
+        <h2 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-play-circle text-amber-400"></i>
+            <span>Video Ads ($0.0050 each)</span>
+        </h2>
 
-            <!-- Tab Switcher -->
-            <div class="grid grid-cols-2 bg-slate-950 p-1 rounded-2xl mb-6 border border-slate-800 text-center">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="py-2.5 rounded-xl text-xs font-bold text-amber-400 bg-slate-800 shadow transition-all duration-300">
-                    Login
-                </button>
-                <button id="tab-register" onclick="switchAuthTab('register')" class="py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300">
-                    Register
-                </button>
-            </div>
+        <!-- TASKS GRID -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-            <!-- LOGIN FORM -->
-            <div id="login-form">
-                <button onclick="triggerGoogleSignIn()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-200 mb-4">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/>
-                        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
-                        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-                    </svg>
-                    <span>Sign in with Google</span>
-                </button>
-
-                <div class="relative flex py-3 items-center">
-                    <div class="flex-grow border-t border-slate-800"></div>
-                    <span class="flex-shrink mx-4 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or Mobile Login</span>
-                    <div class="flex-grow border-t border-slate-800"></div>
-                </div>
-
-                <form onsubmit="handlePhoneLogin(event)" class="space-y-4">
+            <!-- TASK 1 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 text-amber-500 font-bold px-3 py-2 rounded-xl text-xs border border-amber-500/20">Ad</div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Phone Number</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs font-bold">+94</span>
-                            <input type="tel" id="login-phone" required placeholder="771234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-amber-500 transition">
-                        </div>
+                        <h4 class="font-bold text-sm">Watch Video Ad #1</h4>
+                        <p class="text-xs text-slate-400">Complete task to add reward to your account balance.</p>
                     </div>
-                    
-                    <div id="login-otp-section" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Enter 6-Digit OTP</label>
-                        <input type="text" id="login-otp" placeholder="123456" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition tracking-widest text-center font-mono">
-                    </div>
-
-                    <button type="submit" id="login-submit-btn" class="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-600 hover:to-yellow-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-amber-500/10 text-sm">
-                        Send Verification Code
+                </div>
+                <div class="text-right">
+                    <span class="block text-emerald-400 font-bold text-xs mb-2">+ $0.0050</span>
+                    <button id="btn-task-1" onclick="startTask('btn-task-1', 0.0050)" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs py-2 px-4 rounded-xl transition">
+                        Start Task
                     </button>
-                </form>
+                </div>
             </div>
 
-            <!-- REGISTER FORM -->
-            <div id="register-form" class="hidden">
-                <button onclick="triggerGoogleSignIn()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition duration-200 mb-4">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/>
-                        <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
-                        <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
-                        <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
-                    </svg>
-                    <span>Sign up with Google</span>
-                </button>
-
-                <div class="relative flex py-2 items-center">
-                    <div class="flex-grow border-t border-slate-800"></div>
-                    <span class="flex-shrink mx-4 text-[10px] uppercase font-bold text-slate-500 tracking-wider">Or Register With Phone</span>
-                    <div class="flex-grow border-t border-slate-800"></div>
+            <!-- TASK 2 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 text-amber-500 font-bold px-3 py-2 rounded-xl text-xs border border-amber-500/20">Ad</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Watch Video Ad #2</h4>
+                        <p class="text-xs text-slate-400">Complete task to add reward to your account balance.</p>
+                    </div>
                 </div>
-
-                <form onsubmit="handleRegister(event)" class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Full Name</label>
-                        <input type="text" id="reg-name" required placeholder="John Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Phone Number</label>
-                        <div class="relative">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500 text-xs font-bold">+94</span>
-                            <input type="tel" id="reg-phone" required placeholder="771234567" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 pl-12 pr-3 text-sm text-white focus:outline-none focus:border-amber-500 transition">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Referral Code (Optional)</label>
-                        <input type="text" id="reg-ref" placeholder="RM-XXXXXX" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:outline-none focus:border-amber-500 transition uppercase tracking-wider">
-                    </div>
-
-                    <div id="reg-otp-section" class="hidden">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Enter OTP Code</label>
-                        <input type="text" id="reg-otp" placeholder="123456" maxlength="6" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white focus:outline-none focus:border-amber-500 transition text-center font-mono">
-                    </div>
-
-                    <button type="submit" id="reg-submit-btn" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-slate-950 font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-500/10 text-sm mt-2">
-                        Send Registration Code
+                <div class="text-right">
+                    <span class="block text-emerald-400 font-bold text-xs mb-2">+ $0.0050</span>
+                    <button id="btn-task-2" onclick="startTask('btn-task-2', 0.0050)" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs py-2 px-4 rounded-xl transition">
+                        Start Task
                     </button>
-                </form>
-            </div>
-
-            <!-- Hidden Google Sign-In Container for SDK -->
-            <div id="hidden-g-btn" class="hidden"></div>
-        </div>
-
-        <!-- MAIN DASHBOARD CONTAINER (Hidden initially) -->
-        <div id="dashboard-container" class="hidden space-y-8">
-            <!-- Welcome Banner -->
-            <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 relative overflow-hidden">
-                <div class="z-10">
-                    <h1 class="text-2xl sm:text-3xl font-black text-white">Welcome, <span id="dash-welcome-name" class="text-amber-400">User</span>! 👋</h1>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1">Complete 10 Ads, 10 Captchas, and 10 Website Visits daily to maximize profit.</p>
-                </div>
-                <button onclick="switchTab('withdraw-sec')" class="z-10 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl transition shadow-lg shadow-emerald-500/20 text-xs sm:text-sm flex items-center space-x-2">
-                    <i class="fa-solid fa-money-bill-transfer"></i>
-                    <span>Withdraw Cash</span>
-                </button>
-            </div>
-
-            <!-- Statistics Grid -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
-                    <span class="text-xs text-slate-400 font-semibold mb-2">Today's Earnings</span>
-                    <span id="today-earning" class="text-xl sm:text-2xl font-black text-amber-400">$0.0000</span>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
-                    <span class="text-xs text-slate-400 font-semibold mb-2">Tasks Completed</span>
-                    <span id="task-count" class="text-xl sm:text-2xl font-black text-blue-400">0 / 30</span>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
-                    <span class="text-xs text-slate-400 font-semibold mb-2">Referral Bonus</span>
-                    <span id="ref-bonus-stat" class="text-xl sm:text-2xl font-black text-purple-400">$0.0000</span>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between">
-                    <span class="text-xs text-slate-400 font-semibold mb-2">Account Level</span>
-                    <span class="text-xl sm:text-2xl font-black text-emerald-400 flex items-center space-x-1">
-                        <span>Bronze</span>
-                        <i class="fa-solid fa-star text-xs text-amber-400"></i>
-                    </span>
                 </div>
             </div>
 
-            <!-- Dashboard Navigation Tabs -->
-            <div class="flex border-b border-slate-800 space-x-4">
-                <button id="btn-tasks" onclick="switchTab('tasks-sec')" class="py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition">
-                    <i class="fa-solid fa-list-check mr-2"></i>Daily Tasks (30)
-                </button>
-                <button id="btn-referral" onclick="switchTab('referral-sec')" class="py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition">
-                    <i class="fa-solid fa-users mr-2"></i>Referral Program
-                </button>
-                <button id="btn-withdraw" onclick="switchTab('withdraw-sec')" class="py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition">
-                    <i class="fa-solid fa-building-columns mr-2"></i>Withdraw
-                </button>
-            </div>
-
-            <!-- TAB 1: DAILY TASKS -->
-            <div id="tasks-sec" class="space-y-6">
-                <!-- Video Ads -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-2">
-                        <i class="fa-solid fa-play-circle text-amber-400"></i>
-                        <span>Video Ads ($0.0050 each)</span>
-                    </h3>
-                    <div id="video-ads-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-
-                <!-- Captcha Tasks -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-2">
-                        <i class="fa-solid fa-shield-halved text-blue-400"></i>
-                        <span>Captcha Verification ($0.0020 each)</span>
-                    </h3>
-                    <div id="captchas-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-
-                <!-- Website Visits -->
-                <div>
-                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider mb-3 flex items-center space-x-2">
-                        <i class="fa-solid fa-globe text-purple-400"></i>
-                        <span>Website Visits ($0.0030 each)</span>
-                    </h3>
-                    <div id="websites-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                </div>
-            </div>
-
-            <!-- TAB 2: REFERRAL PROGRAM -->
-            <div id="referral-sec" class="hidden space-y-6">
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-2xl mx-auto space-y-6">
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-purple-500/10 text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
-                            <i class="fa-solid fa-user-plus"></i>
-                        </div>
-                        <h2 class="text-xl font-bold text-white">Invite Friends & Earn Bonus</h2>
-                        <p class="text-xs text-slate-400 mt-1">Get instant **$0.80** for every friend who registers using your link!</p>
-                    </div>
-
+            <!-- TASK 3 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 text-amber-500 font-bold px-3 py-2 rounded-xl text-xs border border-amber-500/20">Ad</div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-2">Your Unique Referral Link</label>
-                        <div class="flex space-x-2">
-                            <input type="text" id="ref-link" readonly value="Loading link..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-amber-400 font-mono focus:outline-none">
-                            <button onclick="copyRefLink()" class="bg-purple-600 hover:bg-purple-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs transition flex-shrink-0">
-                                Copy Link
-                            </button>
-                        </div>
-                        <span id="copy-msg" class="text-emerald-400 text-xs hidden mt-2 inline-block">Copied to clipboard!</span>
+                        <h4 class="font-bold text-sm">Watch Video Ad #3</h4>
+                        <p class="text-xs text-slate-400">Complete task to add reward to your account balance.</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- TAB 3: WITHDRAW -->
-            <div id="withdraw-sec" class="hidden">
-                <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl mx-auto space-y-6">
-                    <h2 class="text-xl font-bold text-white">Request Payout</h2>
-                    <form onsubmit="handleWithdraw(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Your Account User ID</label>
-                            <div class="flex space-x-2">
-                                <input type="text" id="withdraw-user-id" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs font-mono text-amber-400 focus:outline-none">
-                                <button type="button" onclick="fillWithdrawID()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-700">
-                                    Use My ID
-                                </button>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Select Payment Gateway</label>
-                            <select class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                                <option>Binance Pay (Crypto / USDT)</option>
-                                <option>eMoney / Mobile Reload</option>
-                                <option>Bank Transfer (Sri Lanka)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Account Number / Wallet Address</label>
-                            <input type="text" required placeholder="Enter ID or Bank Details" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Amount ($ USD)</label>
-                            <input type="number" step="0.01" min="1.00" required placeholder="Minimum $1.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                        </div>
-
-                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-500/10">
-                            Submit Withdrawal Request
-                        </button>
-                    </form>
+                <div class="text-right">
+                    <span class="block text-emerald-400 font-bold text-xs mb-2">+ $0.0050</span>
+                    <button id="btn-task-3" onclick="startTask('btn-task-3', 0.0050)" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs py-2 px-4 rounded-xl transition">
+                        Start Task
+                    </button>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- USER PROFILE MODAL -->
-    <div id="profile-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative space-y-6">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-lg">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 font-bold text-2xl mx-auto overflow-hidden">
-                    <span id="modal-user-icon"><i class="fa-solid fa-user"></i></span>
-                    <img id="modal-user-pic" class="w-full h-full object-cover hidden" alt="User Avatar">
+            <!-- TASK 4 -->
+            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="bg-amber-500/10 text-amber-500 font-bold px-3 py-2 rounded-xl text-xs border border-amber-500/20">Ad</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Watch Video Ad #4</h4>
+                        <p class="text-xs text-slate-400">Complete task to add reward to your account balance.</p>
+                    </div>
                 </div>
-                <h3 id="modal-user-name" class="font-bold text-lg text-white">User Name</h3>
-                <p id="modal-user-email" class="text-xs text-slate-400">user@email.com</p>
+                <div class="text-right">
+                    <span class="block text-emerald-400 font-bold text-xs mb-2">+ $0.0050</span>
+                    <button id="btn-task-4" onclick="startTask('btn-task-4', 0.0050)" class="bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs py-2 px-4 rounded-xl transition">
+                        Start Task
+                    </button>
+                </div>
             </div>
 
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                <div>
-                    <span class="block text-[10px] text-slate-500 uppercase font-bold">Your ID</span>
-                    <span id="modal-user-id" class="text-xs font-mono text-amber-400">RM-XXXXXX</span>
-                </div>
-                <button onclick="copyUserId()" class="text-slate-400 hover:text-amber-400 text-xs font-semibold px-2 py-1 bg-slate-800 rounded-lg">
-                    Copy ID
-                </button>
-            </div>
-
-            <button onclick="handleLogout()" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold py-2.5 rounded-xl text-xs transition">
-                Logout
-            </button>
         </div>
     </div>
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // FIREBASE CONFIGURATION
-        const firebaseConfig = {
-            apiKey: "AIzaSyAVbu5JnB_g0TJy4tb_d2TQUhUaGyIfPIo",
-            authDomain: "ranu-money-ad.firebaseapp.com",
-            databaseURL: "https://ranu-money-ad-default-rtdb.firebaseio.com",
-            projectId: "ranu-money-ad",
-            storageBucket: "ranu-money-ad.firebasestorage.app",
-            messagingSenderId: "257941873299",
-            appId: "1:257941873299:web:d2dd14f8db94299e6e6366",
-            measurementId: "G-BF62675YM6"
-        };
+        // AdSterra Direct Link
+        const ADSTERRA_DIRECT_LINK = "https://www.effectivecpmnetwork.com/wi7ywy7p?key=54d1588bdb4620b9a6b7cf5d34b797c6";
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        let currentBalance = 0.0050; // Initial Balance
 
-        let currentTab = 'login';
-        let isLoginOtpSent = false;
-        let isRegOtpSent = false;
+        function startTask(buttonId, rewardAmount) {
+            // 1. Direct Link එක New Tab එකකින් Open කිරීම
+            window.open(ADSTERRA_DIRECT_LINK, '_blank');
 
-        let currentBalance = 0.0000;
-        let todayEarning = 0.0000;
-        let completedTasksCount = 0;
-        let refBonusEarning = 0.0000;
+            // 2. Balance එක එකතු කර Display එක Update කිරීම
+            currentBalance += rewardAmount;
+            document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
 
-        const GOOGLE_CLIENT_ID = "664887473384-oh8jv0rbigt8utuhmomn2rmkdgdt5vam.apps.googleusercontent.com";
-
-        // Initialize Application
-        window.onload = function () {
-            // Check for referral parameters in URL
-            checkUrlReferralCode();
-
-            const savedName = localStorage.getItem("user_name");
-            if (savedName) {
-                loadDashboardView();
+            // 3. Click කළ Button එක Disabled සහ Completed ලෙස වෙනස් කිරීම
+            const btn = document.getElementById(buttonId);
+            if (btn) {
+                btn.innerText = "Completed";
+                btn.disabled = true;
+                btn.classList.remove("bg-amber-500", "hover:bg-amber-600", "text-black");
+                btn.classList.add("bg-slate-800", "text-slate-500", "cursor-not-allowed", "border", "border-slate-700");
             }
-
-            // Initialize Google SDK
-            if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.initialize({
-                    client_id: GOOGLE_CLIENT_ID,
-                    callback: handleCredentialResponse,
-                    auto_select: false
-                });
-
-                google.accounts.id.renderButton(
-                    document.getElementById("hidden-g-btn"),
-                    { theme: "outline", size: "large" }
-                );
-            }
-
-            // Generate Tasks
-            generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 10);
-            generateTasks('captchas-container', 'Complete Security Captcha', 'fa-keyboard', 'blue', 0.0020, 10);
-            generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10);
-        };
-
-        // Auto-fill Referral Code from URL
-        function checkUrlReferralCode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const refParam = urlParams.get('ref');
-            if (refParam) {
-                const regRefInput = document.getElementById('reg-ref');
-                if (regRefInput) {
-                    regRefInput.value = refParam;
-                    switchAuthTab('register');
-                }
-            }
-        }
-
-        // Get/Create User Unique ID
-        function getOrCreateUserId() {
-            let userId = localStorage.getItem("user_id");
-            if (!userId) {
-                userId = "RM-" + Math.floor(100000 + Math.random() * 900000);
-                localStorage.setItem("user_id", userId);
-            }
-            return userId;
-        }
-
-        // Load Live Data from Firebase
-        function loadUserDataFromFirebase() {
-            const userId = getOrCreateUserId();
-            const userRef = database.ref('users/' + userId);
-
-            userRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    currentBalance = data.balance || 0.0000;
-                    todayEarning = data.todayEarning || 0.0000;
-                    completedTasksCount = data.completedTasks || 0;
-                    refBonusEarning = data.refBonus || 0.0000;
-
-                    document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
-                    document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
-                    document.getElementById('task-count').innerText = completedTasksCount + " / 30";
-                    document.getElementById('ref-bonus-stat').innerText = "$" + refBonusEarning.toFixed(4);
-                } else {
-                    saveUserDataToFirebase();
-                }
-            });
-        }
-
-        // Save User Data to Firebase
-        function saveUserDataToFirebase() {
-            const userId = getOrCreateUserId();
-            const name = localStorage.getItem("user_name") || "User";
-            const email = localStorage.getItem("user_email") || "";
-
-            database.ref('users/' + userId).set({
-                name: name,
-                email: email,
-                balance: currentBalance,
-                todayEarning: todayEarning,
-                completedTasks: completedTasksCount,
-                refBonus: refBonusEarning
-            });
-        }
-
-        // Process Referral Bonus ($0.80) to Referrer
-        function processReferralBonus(enteredRefCode) {
-            if (!enteredRefCode) return;
-
-            const currentUserId = getOrCreateUserId();
-            if (enteredRefCode === currentUserId) return;
-
-            const referrerRef = database.ref('users/' + enteredRefCode);
-            referrerRef.once('value').then((snapshot) => {
-                if (snapshot.exists()) {
-                    const referrerData = snapshot.val();
-                    const oldBalance = referrerData.balance || 0;
-                    const oldRefBonus = referrerData.refBonus || 0;
-
-                    referrerRef.update({
-                        balance: oldBalance + 0.8000,
-                        refBonus: oldRefBonus + 0.8000
-                    });
-                }
-            });
-        }
-
-        // Switch Auth Tabs
-        function switchAuthTab(tab) {
-            currentTab = tab;
-            const loginForm = document.getElementById('login-form');
-            const regForm = document.getElementById('register-form');
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
-            const subTitle = document.getElementById('sub-title');
-
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                regForm.classList.add('hidden');
-                tabLogin.className = "py-2.5 rounded-xl text-xs font-bold text-amber-400 bg-slate-800 shadow transition-all duration-300";
-                tabRegister.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300";
-                subTitle.innerText = "Sign in to start earning daily cash";
-            } else {
-                loginForm.classList.add('hidden');
-                regForm.classList.remove('hidden');
-                tabRegister.className = "py-2.5 rounded-xl text-xs font-bold text-emerald-400 bg-slate-800 shadow transition-all duration-300";
-                tabLogin.className = "py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition-all duration-300";
-                subTitle.innerText = "Create a new account & claim welcome bonus";
-            }
-        }
-
-        // Google Authentication Logic
-        function triggerGoogleSignIn() {
-            const hiddenBtn = document.getElementById("hidden-g-btn").querySelector("div[role=button], iframe");
-            if (hiddenBtn) {
-                hiddenBtn.click();
-            } else if (typeof google !== 'undefined' && google.accounts) {
-                google.accounts.id.prompt();
-            } else {
-                alert("Google SDK loading... Please try again.");
-            }
-        }
-
-        function handleCredentialResponse(response) {
-            try {
-                const user = parseJwt(response.credential);
-                localStorage.setItem("user_name", user.name);
-                localStorage.setItem("user_email", user.email);
-                localStorage.setItem("user_pic", user.picture || "");
-                
-                const regRef = document.getElementById('reg-ref').value.trim();
-                if (regRef) processReferralBonus(regRef);
-
-                getOrCreateUserId();
-                loadDashboardView();
-            } catch (err) {
-                console.error("Authentication Error:", err);
-            }
-        }
-
-        function parseJwt(token) {
-            var base64Url = token.split('.')[1];
-            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-            }).join(''));
-            return JSON.parse(jsonPayload);
-        }
-
-        // Phone Authentication Handlers
-        function handlePhoneLogin(e) {
-            e.preventDefault();
-            const btn = document.getElementById('login-submit-btn');
-            const otpSec = document.getElementById('login-otp-section');
-            const phone = document.getElementById('login-phone').value;
-
-            if (!isLoginOtpSent) {
-                btn.innerText = "Sending Code...";
-                setTimeout(() => {
-                    isLoginOtpSent = true;
-                    otpSec.classList.remove('hidden');
-                    btn.innerText = "Verify OTP & Sign In";
-                }, 1000);
-            } else {
-                localStorage.setItem("user_name", "User +94" + phone);
-                localStorage.setItem("user_email", "+94" + phone);
-                getOrCreateUserId();
-                loadDashboardView();
-            }
-        }
-
-        function handleRegister(e) {
-            e.preventDefault();
-            const btn = document.getElementById('reg-submit-btn');
-            const otpSec = document.getElementById('reg-otp-section');
-            const name = document.getElementById('reg-name').value;
-            const phone = document.getElementById('reg-phone').value;
-            const refCode = document.getElementById('reg-ref').value.trim();
-
-            if (!isRegOtpSent) {
-                btn.innerText = "Sending Verification OTP...";
-                setTimeout(() => {
-                    isRegOtpSent = true;
-                    otpSec.classList.remove('hidden');
-                    btn.innerText = "Verify & Complete Signup";
-                }, 1000);
-            } else {
-                localStorage.setItem("user_name", name);
-                localStorage.setItem("user_email", "+94" + phone);
-                getOrCreateUserId();
-
-                if (refCode) {
-                    processReferralBonus(refCode);
-                }
-
-                loadDashboardView();
-            }
-        }
-
-        // Render Dashboard
-        function loadDashboardView() {
-            document.getElementById('auth-container').classList.add('hidden');
-            document.getElementById('dashboard-container').classList.remove('hidden');
-
-            const name = localStorage.getItem("user_name") || "User";
-            const pic = localStorage.getItem("user_pic");
-            const userId = getOrCreateUserId();
-
-            document.getElementById('nav-user-name').innerText = name;
-            document.getElementById('dash-welcome-name').innerText = name;
-            document.getElementById('withdraw-user-id').value = userId;
-
-            // Generate dynamic referral link
-            const currentDomain = window.location.origin + window.location.pathname;
-            document.getElementById('ref-link').value = currentDomain + "?ref=" + userId;
-
-            if (pic) {
-                const imgEl = document.getElementById('nav-user-pic');
-                imgEl.src = pic;
-                imgEl.classList.remove('hidden');
-                document.getElementById('nav-user-icon').classList.add('hidden');
-            }
-
-            loadUserDataFromFirebase();
-        }
-
-        // Modal Controls
-        function openProfileModal() {
-            const name = localStorage.getItem("user_name") || "User";
-            const email = localStorage.getItem("user_email") || "Not Provided";
-            const pic = localStorage.getItem("user_pic");
-            const userId = getOrCreateUserId();
-
-            document.getElementById('modal-user-name').innerText = name;
-            document.getElementById('modal-user-email').innerText = email;
-            document.getElementById('modal-user-id').innerText = userId;
-
-            if (pic) {
-                const imgEl = document.getElementById('modal-user-pic');
-                imgEl.src = pic;
-                imgEl.classList.remove('hidden');
-                document.getElementById('modal-user-icon').classList.add('hidden');
-            }
-
-            document.getElementById('profile-modal').classList.remove('hidden');
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profile-modal').classList.add('hidden');
-        }
-
-        function copyUserId() {
-            const userId = getOrCreateUserId();
-            navigator.clipboard.writeText(userId);
-            alert("User ID Copied: " + userId);
-        }
-
-        function fillWithdrawID() {
-            const userId = getOrCreateUserId();
-            document.getElementById('withdraw-user-id').value = userId;
-        }
-
-        function handleLogout() {
-            localStorage.clear();
-            location.reload();
-        }
-
-        // Render Task Items
-        function generateTasks(containerId, titlePrefix, iconClass, color, reward, count) {
-            const container = document.getElementById(containerId);
-            for (let i = 1; i <= count; i++) {
-                const taskHTML = `
-                    <div class="bg-slate-900 border border-slate-800 hover:border-${color}-500/50 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center transition">
-                        <div class="flex items-center space-x-4 mb-3 md:mb-0">
-                            <div class="bg-${color}-500/10 text-${color}-400 p-3 rounded-xl text-lg">
-                                <i class="fa-solid ${iconClass}"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-white text-sm">${titlePrefix} #${i}</h3>
-                                <p class="text-xs text-slate-400">Complete task to add reward to your account balance.</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-4 w-full md:w-auto justify-between">
-                            <span class="text-emerald-400 font-bold text-xs">+ $${reward.toFixed(4)}</span>
-                            <button onclick="completeTask(this, ${reward})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs transition">
-                                Start Task
-                            </button>
-                        </div>
-                    </div>
-                `;
-                container.innerHTML += taskHTML;
-            }
-        }
-
-        // Navigation Tabs Controller
-        function switchTab(tabId) {
-            document.getElementById('tasks-sec').classList.add('hidden');
-            document.getElementById('referral-sec').classList.add('hidden');
-            document.getElementById('withdraw-sec').classList.add('hidden');
-            
-            document.getElementById(tabId).classList.remove('hidden');
-
-            document.getElementById('btn-tasks').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
-            document.getElementById('btn-referral').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
-            document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-slate-400 hover:text-amber-400 transition';
-
-            if(tabId === 'tasks-sec') document.getElementById('btn-tasks').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
-            if(tabId === 'referral-sec') document.getElementById('btn-referral').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
-            if(tabId === 'withdraw-sec') document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
-        }
-
-        // Complete Task & Reward
-        function completeTask(buttonEl, reward) {
-            buttonEl.disabled = true;
-            buttonEl.innerText = "Processing...";
-            buttonEl.className = "bg-slate-800 text-slate-500 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-not-allowed";
-
-            setTimeout(() => {
-                currentBalance += reward;
-                todayEarning += reward;
-                completedTasksCount++;
-                
-                document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
-                document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
-                document.getElementById('task-count').innerText = completedTasksCount + " / 30";
-
-                saveUserDataToFirebase();
-
-                buttonEl.innerText = "Completed ✓";
-                buttonEl.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-3.5 py-1.5 rounded-lg text-xs";
-            }, 1200);
-        }
-
-        // Referral Copy Button
-        function copyRefLink() {
-            const copyText = document.getElementById("ref-link");
-            navigator.clipboard.writeText(copyText.value);
-            document.getElementById("copy-msg").classList.remove("hidden");
-        }
-
-        // Withdraw Request
-        function handleWithdraw(e) {
-            e.preventDefault();
-            const userId = document.getElementById('withdraw-user-id').value;
-            alert("Withdrawal request for User ID: " + userId + " submitted successfully!");
         }
     </script>
 </body>
