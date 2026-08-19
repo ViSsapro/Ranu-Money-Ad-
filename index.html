@@ -326,6 +326,27 @@
         </div>
     </main>
 
+    <!-- CAPTCHA MODAL -->
+    <div id="captcha-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative space-y-4">
+            <h3 class="text-base font-bold text-white text-center">Solve Captcha to Earn</h3>
+            <p class="text-xs text-slate-400 text-center">Enter the code shown below within <span id="captcha-timer" class="text-amber-400 font-bold">10</span> seconds:</p>
+
+            <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
+                <span id="captcha-code-display" class="text-2xl font-black text-amber-400 tracking-widest font-mono select-none">XXXXXX</span>
+            </div>
+
+            <div>
+                <input type="text" id="captcha-input" placeholder="Type captcha code" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-sm text-white focus:outline-none focus:border-amber-500 transition text-center tracking-wider font-mono">
+                <p id="captcha-error" class="text-xs text-rose-400 hidden mt-1 text-center">Incorrect code! Please try again.</p>
+            </div>
+
+            <button onclick="submitCaptcha()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold py-2.5 rounded-xl transition text-xs">
+                Submit & Verify
+            </button>
+        </div>
+    </div>
+
     <!-- USER PROFILE MODAL -->
     <div id="profile-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-sm w-full p-6 relative space-y-6">
@@ -371,6 +392,9 @@
             measurementId: "G-BF62675YM6"
         };
 
+        // ADSTERRA / AD TARGET LINKS CONFIGURATION (ඔබගේ කැමති Direct Ad Link එක මෙතැනට යොදන්න)
+        const DEFAULT_AD_LINK = "https://www.effectivecpmnetwork.com/mrk7afijm?key=5c53b314caafbc9df624f1d0504e6553"; // <-- මෙතැනට Adsterra Direct Link එක දාන්න
+
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
@@ -383,6 +407,12 @@
         let todayEarning = 0.0000;
         let completedTasksCount = 0;
         let refBonusEarning = 0.0000;
+
+        // Captcha State Variables
+        let activeCaptchaButton = null;
+        let activeCaptchaReward = 0;
+        let generatedCaptchaCode = "";
+        let captchaTimerInterval = null;
 
         const GOOGLE_CLIENT_ID = "664887473384-oh8jv0rbigt8utuhmomn2rmkdgdt5vam.apps.googleusercontent.com";
 
@@ -410,10 +440,10 @@
                 );
             }
 
-            // Generate Tasks
-            generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 10);
-            generateTasks('captchas-container', 'Complete Security Captcha', 'fa-keyboard', 'blue', 0.0020, 10);
-            generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10);
+            // Generate Tasks with Ad Links
+            generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 10, 'video', DEFAULT_AD_LINK);
+            generateTasks('captchas-container', 'Complete Security Captcha', 'fa-keyboard', 'blue', 0.0020, 10, 'captcha', '');
+            generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10, 'website', DEFAULT_AD_LINK);
         };
 
         // Auto-fill Referral Code from URL
@@ -681,7 +711,7 @@
         }
 
         // Render Task Items
-        function generateTasks(containerId, titlePrefix, iconClass, color, reward, count) {
+        function generateTasks(containerId, titlePrefix, iconClass, color, reward, count, type, targetUrl) {
             const container = document.getElementById(containerId);
             for (let i = 1; i <= count; i++) {
                 const taskHTML = `
@@ -697,7 +727,7 @@
                         </div>
                         <div class="flex items-center space-x-4 w-full md:w-auto justify-between">
                             <span class="text-emerald-400 font-bold text-xs">+ $${reward.toFixed(4)}</span>
-                            <button onclick="completeTask(this, ${reward})" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs transition">
+                            <button onclick="startTaskExecution(this, ${reward}, '${type}', '${targetUrl}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs transition">
                                 Start Task
                             </button>
                         </div>
@@ -705,6 +735,104 @@
                 `;
                 container.innerHTML += taskHTML;
             }
+        }
+
+        // Start Task Routing & Processing
+        function startTaskExecution(buttonEl, reward, type, targetUrl) {
+            if (type === 'captcha') {
+                openCaptchaModal(buttonEl, reward);
+            } else {
+                // Open external site/Ad in a new tab
+                if (targetUrl) {
+                    window.open(targetUrl, '_blank');
+                }
+                
+                // Start 10-second countdown in main window
+                startTaskCountdown(buttonEl, reward, 10);
+            }
+        }
+
+        // Timer Execution for External Ads & Websites
+        function startTaskCountdown(buttonEl, reward, seconds) {
+            buttonEl.disabled = true;
+            buttonEl.className = "bg-slate-800 text-amber-400 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-not-allowed";
+            
+            let timeLeft = seconds;
+            buttonEl.innerText = `Wait ${timeLeft}s...`;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    buttonEl.innerText = `Wait ${timeLeft}s...`;
+                } else {
+                    clearInterval(timer);
+                    completeTaskReward(buttonEl, reward);
+                }
+            }, 1000);
+        }
+
+        // CAPTCHA Task Execution
+        function openCaptchaModal(buttonEl, reward) {
+            activeCaptchaButton = buttonEl;
+            activeCaptchaReward = reward;
+            
+            // Generate Random 6 Character Alphanumeric Captcha Code
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            generatedCaptchaCode = "";
+            for (let i = 0; i < 6; i++) {
+                generatedCaptchaCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+
+            document.getElementById('captcha-code-display').innerText = generatedCaptchaCode;
+            document.getElementById('captcha-input').value = "";
+            document.getElementById('captcha-error').classList.add('hidden');
+            document.getElementById('captcha-modal').classList.remove('hidden');
+
+            let timeLeft = 10;
+            document.getElementById('captcha-timer').innerText = timeLeft;
+
+            if (captchaTimerInterval) clearInterval(captchaTimerInterval);
+            captchaTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('captcha-timer').innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(captchaTimerInterval);
+                    closeCaptchaModal();
+                    alert("Captcha timed out! Please try again.");
+                }
+            }, 1000);
+        }
+
+        function submitCaptcha() {
+            const userInput = document.getElementById('captcha-input').value.trim().toUpperCase();
+            if (userInput === generatedCaptchaCode) {
+                if (captchaTimerInterval) clearInterval(captchaTimerInterval);
+                closeCaptchaModal();
+                completeTaskReward(activeCaptchaButton, activeCaptchaReward);
+            } else {
+                document.getElementById('captcha-error').classList.remove('hidden');
+            }
+        }
+
+        function closeCaptchaModal() {
+            document.getElementById('captcha-modal').classList.add('hidden');
+        }
+
+        // Finalize Task Reward
+        function completeTaskReward(buttonEl, reward) {
+            currentBalance += reward;
+            todayEarning += reward;
+            completedTasksCount++;
+            
+            document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
+            document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
+            document.getElementById('task-count').innerText = completedTasksCount + " / 30";
+
+            saveUserDataToFirebase();
+
+            buttonEl.innerText = "Completed ✓";
+            buttonEl.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-default";
+            buttonEl.disabled = true;
         }
 
         // Navigation Tabs Controller
@@ -722,28 +850,6 @@
             if(tabId === 'tasks-sec') document.getElementById('btn-tasks').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
             if(tabId === 'referral-sec') document.getElementById('btn-referral').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
             if(tabId === 'withdraw-sec') document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
-        }
-
-        // Complete Task & Reward
-        function completeTask(buttonEl, reward) {
-            buttonEl.disabled = true;
-            buttonEl.innerText = "Processing...";
-            buttonEl.className = "bg-slate-800 text-slate-500 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-not-allowed";
-
-            setTimeout(() => {
-                currentBalance += reward;
-                todayEarning += reward;
-                completedTasksCount++;
-                
-                document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
-                document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
-                document.getElementById('task-count').innerText = completedTasksCount + " / 30";
-
-                saveUserDataToFirebase();
-
-                buttonEl.innerText = "Completed ✓";
-                buttonEl.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-3.5 py-1.5 rounded-lg text-xs";
-            }, 1200);
         }
 
         // Referral Copy Button
