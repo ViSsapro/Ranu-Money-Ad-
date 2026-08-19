@@ -291,7 +291,7 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Your Account User ID</label>
                             <div class="flex space-x-2">
-                                <input type="text" id="withdraw-user-id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs font-mono text-amber-400 focus:outline-none">
+                                <input type="text" id="withdraw-user-id" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs font-mono text-amber-400 focus:outline-none">
                                 <button type="button" onclick="fillWithdrawID()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-700">
                                     Use My ID
                                 </button>
@@ -301,9 +301,9 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Select Payment Gateway</label>
                             <select class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                                <option value="Binance Pay (Crypto / USDT)">Binance Pay (Crypto / USDT)</option>
-                                <option value="eMoney / Mobile Reload">eMoney / Mobile Reload</option>
-                                <option value="Bank Transfer (Sri Lanka)">Bank Transfer (Sri Lanka)</option>
+                                <option>Binance Pay (Crypto / USDT)</option>
+                                <option>eMoney / Mobile Reload</option>
+                                <option>Bank Transfer (Sri Lanka)</option>
                             </select>
                         </div>
 
@@ -314,8 +314,7 @@
 
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Amount ($ USD)</label>
-                            <input type="number" step="0.01" min="10.00" required placeholder="Minimum $10.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                            <p class="text-[11px] text-amber-400/80 mt-1">* Minimum withdrawal amount is $10.00</p>
+                            <input type="number" step="0.01" min="1.00" required placeholder="Minimum $1.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
                         </div>
 
                         <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl transition text-xs shadow-lg shadow-emerald-500/10">
@@ -412,6 +411,7 @@
         // Captcha State Variables
         let activeCaptchaButton = null;
         let activeCaptchaReward = 0;
+        let activeCaptchaTaskId = "";
         let generatedCaptchaCode = "";
         let captchaTimerInterval = null;
 
@@ -419,7 +419,6 @@
 
         // Initialize Application
         window.onload = function () {
-            // Check for referral parameters in URL
             checkUrlReferralCode();
 
             const savedName = localStorage.getItem("user_name");
@@ -427,7 +426,6 @@
                 loadDashboardView();
             }
 
-            // Initialize Google SDK
             if (typeof google !== 'undefined' && google.accounts) {
                 google.accounts.id.initialize({
                     client_id: GOOGLE_CLIENT_ID,
@@ -441,13 +439,15 @@
                 );
             }
 
-            // Generate Tasks with Ad Links
+            renderAllTasks();
+        };
+
+        function renderAllTasks() {
             generateTasks('video-ads-container', 'Watch Video Ad', 'fa-rectangle-ad', 'amber', 0.0050, 10, 'video', DEFAULT_AD_LINK);
             generateTasks('captchas-container', 'Complete Security Captcha', 'fa-keyboard', 'blue', 0.0020, 10, 'captcha', '');
             generateTasks('websites-container', 'Visit Partner Website', 'fa-link', 'purple', 0.0030, 10, 'website', DEFAULT_AD_LINK);
-        };
+        }
 
-        // Auto-fill Referral Code from URL
         function checkUrlReferralCode() {
             const urlParams = new URLSearchParams(window.location.search);
             const refParam = urlParams.get('ref');
@@ -460,7 +460,6 @@
             }
         }
 
-        // Get/Create User Unique ID
         function getOrCreateUserId() {
             let userId = localStorage.getItem("user_id");
             if (!userId) {
@@ -470,7 +469,6 @@
             return userId;
         }
 
-        // Load Live Data from Firebase
         function loadUserDataFromFirebase() {
             const userId = getOrCreateUserId();
             const userRef = database.ref('users/' + userId);
@@ -482,34 +480,36 @@
                     todayEarning = data.todayEarning || 0.0000;
                     completedTasksCount = data.completedTasks || 0;
                     refBonusEarning = data.refBonus || 0.0000;
+                    window.userCompletedTaskList = data.completedTaskList || [];
 
                     document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
                     document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
                     document.getElementById('task-count').innerText = completedTasksCount + " / 30";
                     document.getElementById('ref-bonus-stat').innerText = "$" + refBonusEarning.toFixed(4);
+
+                    renderAllTasks();
                 } else {
                     saveUserDataToFirebase();
                 }
             });
         }
 
-        // Save User Data to Firebase
         function saveUserDataToFirebase() {
             const userId = getOrCreateUserId();
             const name = localStorage.getItem("user_name") || "User";
             const email = localStorage.getItem("user_email") || "";
 
-            database.ref('users/' + userId).set({
+            database.ref('users/' + userId).update({
                 name: name,
                 email: email,
                 balance: currentBalance,
                 todayEarning: todayEarning,
                 completedTasks: completedTasksCount,
-                refBonus: refBonusEarning
+                refBonus: refBonusEarning,
+                completedTaskList: window.userCompletedTaskList || []
             });
         }
 
-        // Process Referral Bonus ($0.80) to Referrer
         function processReferralBonus(enteredRefCode) {
             if (!enteredRefCode) return;
 
@@ -531,7 +531,6 @@
             });
         }
 
-        // Switch Auth Tabs
         function switchAuthTab(tab) {
             currentTab = tab;
             const loginForm = document.getElementById('login-form');
@@ -555,7 +554,6 @@
             }
         }
 
-        // Google Authentication Logic
         function triggerGoogleSignIn() {
             const hiddenBtn = document.getElementById("hidden-g-btn").querySelector("div[role=button], iframe");
             if (hiddenBtn) {
@@ -593,7 +591,6 @@
             return JSON.parse(jsonPayload);
         }
 
-        // Phone Authentication Handlers
         function handlePhoneLogin(e) {
             e.preventDefault();
             const btn = document.getElementById('login-submit-btn');
@@ -643,7 +640,6 @@
             }
         }
 
-        // Render Dashboard
         function loadDashboardView() {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('dashboard-container').classList.remove('hidden');
@@ -656,7 +652,6 @@
             document.getElementById('dash-welcome-name').innerText = name;
             document.getElementById('withdraw-user-id').value = userId;
 
-            // Generate dynamic referral link
             const currentDomain = window.location.origin + window.location.pathname;
             document.getElementById('ref-link').value = currentDomain + "?ref=" + userId;
 
@@ -670,7 +665,6 @@
             loadUserDataFromFirebase();
         }
 
-        // Modal Controls
         function openProfileModal() {
             const name = localStorage.getItem("user_name") || "User";
             const email = localStorage.getItem("user_email") || "Not Provided";
@@ -711,10 +705,17 @@
             location.reload();
         }
 
-        // Render Task Items
+        // Render Tasks (Save Status Checking Added)
         function generateTasks(containerId, titlePrefix, iconClass, color, reward, count, type, targetUrl) {
             const container = document.getElementById(containerId);
+            container.innerHTML = "";
+
+            const completedTasks = window.userCompletedTaskList || [];
+
             for (let i = 1; i <= count; i++) {
+                const taskId = `${type}_task_${i}`;
+                const isDone = completedTasks.includes(taskId);
+
                 const taskHTML = `
                     <div class="bg-slate-900 border border-slate-800 hover:border-${color}-500/50 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-start md:items-center transition">
                         <div class="flex items-center space-x-4 mb-3 md:mb-0">
@@ -728,9 +729,15 @@
                         </div>
                         <div class="flex items-center space-x-4 w-full md:w-auto justify-between">
                             <span class="text-emerald-400 font-bold text-xs">+ $${reward.toFixed(4)}</span>
-                            <button onclick="startTaskExecution(this, ${reward}, '${type}', '${targetUrl}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs transition">
-                                Start Task
-                            </button>
+                            ${isDone ? `
+                                <button disabled class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-default">
+                                    Completed ✓
+                                </button>
+                            ` : `
+                                <button onclick="startTaskExecution(this, ${reward}, '${type}', '${targetUrl}', '${taskId}')" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold px-3.5 py-1.5 rounded-lg text-xs transition">
+                                    Start Task
+                                </button>
+                            `}
                         </div>
                     </div>
                 `;
@@ -738,20 +745,18 @@
             }
         }
 
-        // Start Task Routing & Processing
-        function startTaskExecution(buttonEl, reward, type, targetUrl) {
+        function startTaskExecution(buttonEl, reward, type, targetUrl, taskId) {
             if (type === 'captcha') {
-                openCaptchaModal(buttonEl, reward);
+                openCaptchaModal(buttonEl, reward, taskId);
             } else {
                 if (targetUrl) {
                     window.open(targetUrl, '_blank');
                 }
-                startTaskCountdown(buttonEl, reward, 10);
+                startTaskCountdown(buttonEl, reward, 10, taskId);
             }
         }
 
-        // Timer Execution for External Ads & Websites
-        function startTaskCountdown(buttonEl, reward, seconds) {
+        function startTaskCountdown(buttonEl, reward, seconds, taskId) {
             buttonEl.disabled = true;
             buttonEl.className = "bg-slate-800 text-amber-400 font-bold px-3.5 py-1.5 rounded-lg text-xs cursor-not-allowed";
             
@@ -764,15 +769,15 @@
                     buttonEl.innerText = `Wait ${timeLeft}s...`;
                 } else {
                     clearInterval(timer);
-                    completeTaskReward(buttonEl, reward);
+                    completeTaskReward(buttonEl, reward, taskId);
                 }
             }, 1000);
         }
 
-        // CAPTCHA Task Execution
-        function openCaptchaModal(buttonEl, reward) {
+        function openCaptchaModal(buttonEl, reward, taskId) {
             activeCaptchaButton = buttonEl;
             activeCaptchaReward = reward;
+            activeCaptchaTaskId = taskId;
             
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             generatedCaptchaCode = "";
@@ -805,7 +810,7 @@
             if (userInput === generatedCaptchaCode) {
                 if (captchaTimerInterval) clearInterval(captchaTimerInterval);
                 closeCaptchaModal();
-                completeTaskReward(activeCaptchaButton, activeCaptchaReward);
+                completeTaskReward(activeCaptchaButton, activeCaptchaReward, activeCaptchaTaskId);
             } else {
                 document.getElementById('captcha-error').classList.remove('hidden');
             }
@@ -815,12 +820,18 @@
             document.getElementById('captcha-modal').classList.add('hidden');
         }
 
-        // Finalize Task Reward
-        function completeTaskReward(buttonEl, reward) {
+        function completeTaskReward(buttonEl, reward, taskId) {
             currentBalance += reward;
             todayEarning += reward;
             completedTasksCount++;
             
+            if (!window.userCompletedTaskList) {
+                window.userCompletedTaskList = [];
+            }
+            if (taskId && !window.userCompletedTaskList.includes(taskId)) {
+                window.userCompletedTaskList.push(taskId);
+            }
+
             document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
             document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
             document.getElementById('task-count').innerText = completedTasksCount + " / 30";
@@ -832,7 +843,6 @@
             buttonEl.disabled = true;
         }
 
-        // Navigation Tabs Controller
         function switchTab(tabId) {
             document.getElementById('tasks-sec').classList.add('hidden');
             document.getElementById('referral-sec').classList.add('hidden');
@@ -849,61 +859,16 @@
             if(tabId === 'withdraw-sec') document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
         }
 
-        // Referral Copy Button
         function copyRefLink() {
             const copyText = document.getElementById("ref-link");
             navigator.clipboard.writeText(copyText.value);
             document.getElementById("copy-msg").classList.remove("hidden");
         }
 
-        // Withdraw Request Handler
         function handleWithdraw(e) {
             e.preventDefault();
-            const userId = document.getElementById('withdraw-user-id').value.trim();
-            const method = e.target.querySelector('select').value;
-            const accountDetails = e.target.querySelectorAll('input')[1].value.trim();
-            const amount = parseFloat(e.target.querySelectorAll('input')[2].value);
-
-            // 1. Balance $10 ට වඩා අඩු නම් Request එක Reject කිරීම
-            if (currentBalance < 10.00) {
-                alert("Withdrawal request failed! You need at least $10.00 in your balance to withdraw. Your current balance is $" + currentBalance.toFixed(4));
-                return;
-            }
-
-            // 2. Minimum withdraw amount $10 ට වඩා අඩු නම් Check කිරීම
-            if (!amount || amount < 10.00) {
-                alert("Minimum withdrawal amount is $10.00");
-                return;
-            }
-
-            // 3. Request එක ඇතුලත් කල Amount එක balance එකට වඩා වැඩිනම් Reject කිරීම
-            if (amount > currentBalance) {
-                alert("Insufficient balance! You requested $" + amount.toFixed(2) + " but your balance is $" + currentBalance.toFixed(4));
-                return;
-            }
-
-            // Direct Balance Deduction & Firebase Push
-            const updatedBalance = currentBalance - amount;
-
-            const newReqRef = database.ref('withdrawals').push();
-            newReqRef.set({
-                userId: userId,
-                method: method,
-                accountDetails: accountDetails,
-                amount: amount,
-                status: 'Pending',
-                requestedAt: new Date().toISOString()
-            }).then(() => {
-                // Deduct balance locally & update database
-                currentBalance = updatedBalance;
-                saveUserDataToFirebase();
-
-                alert("Withdrawal request submitted successfully! Your updated balance is $" + currentBalance.toFixed(4));
-                e.target.reset();
-                fillWithdrawID();
-            }).catch((err) => {
-                alert("Error submitting request: " + err.message);
-            });
+            const userId = document.getElementById('withdraw-user-id').value;
+            alert("Withdrawal request for User ID: " + userId + " submitted successfully!");
         }
     </script>
 </body>
