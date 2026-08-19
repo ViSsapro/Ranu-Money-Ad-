@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranu Money Ad - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
+
+    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-user-shield mr-2"></i>Admin Control Panel</h1>
+            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-mono">Live System connected</span>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <span class="text-xs text-slate-400 font-bold uppercase">Total Platform User Balance</span>
+                <h2 id="total-platform-balance" class="text-2xl font-black text-amber-400 mt-1">$0.0000</h2>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <span class="text-xs text-slate-400 font-bold uppercase">Pending Withdrawals</span>
+                <h2 id="pending-requests-count" class="text-2xl font-black text-blue-400 mt-1">0</h2>
+            </div>
+            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
+                <span class="text-xs text-slate-400 font-bold uppercase">Total Approved Payouts</span>
+                <h2 id="approved-requests-count" class="text-2xl font-black text-emerald-400 mt-1">0</h2>
+            </div>
+        </div>
+
+        <!-- Withdrawal Requests Table -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h2 class="font-bold text-sm uppercase tracking-wider text-slate-300">Withdrawal Requests</h2>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase border-b border-slate-800">
+                            <th class="p-4">User ID</th>
+                            <th class="p-4">Requested Amt</th>
+                            <th class="p-4">User Real Balance</th>
+                            <th class="p-4">Method / Details</th>
+                            <th class="p-4">Status</th>
+                            <th class="p-4 text-center">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-withdrawals-table" class="divide-y divide-slate-800 text-xs">
+                        <tr>
+                            <td colspan="6" class="p-4 text-center text-slate-500">Loading requests...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVbu5JnB_g0TJy4tb_d2TQUhUaGyIfPIo",
+            authDomain: "ranu-money-ad.firebaseapp.com",
+            databaseURL: "https://ranu-money-ad-default-rtdb.firebaseio.com",
+            projectId: "ranu-money-ad",
+            storageBucket: "ranu-money-ad.firebasestorage.app",
+            messagingSenderId: "257941873299",
+            appId: "1:257941873299:web:d2dd14f8db94299e6e6366"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        window.onload = function() {
+            loadAdminDashboardData();
+        };
+
+        function loadAdminDashboardData() {
+            // Calculate Total Platform Balance & Watch Users
+            database.ref('users').on('value', (snapshot) => {
+                let total = 0;
+                const users = snapshot.val() || {};
+                Object.keys(users).forEach(uid => {
+                    total += (users[uid].balance || 0);
+                });
+                document.getElementById('total-platform-balance').innerText = "$" + total.toFixed(4);
+            });
+
+            // Watch Withdrawals Requests
+            database.ref('withdrawals').on('value', (snapshot) => {
+                const requests = snapshot.val() || {};
+                const tbody = document.getElementById('admin-withdrawals-table');
+                tbody.innerHTML = '';
+
+                let pendingCount = 0;
+                let approvedCount = 0;
+
+                const keys = Object.keys(requests);
+                if (keys.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No withdrawal requests found.</td></tr>';
+                    return;
+                }
+
+                keys.forEach(reqId => {
+                    const req = requests[reqId];
+                    if (req.status === 'Pending') pendingCount++;
+                    if (req.status === 'Approved') approvedCount++;
+
+                    // Fetch user real balance
+                    database.ref('users/' + req.userId).once('value').then(userSnap => {
+                        const userData = userSnap.val() || {};
+                        const realBalance = userData.balance || 0;
+
+                        const tr = document.createElement('tr');
+                        tr.className = "hover:bg-slate-800/40 transition";
+                        tr.innerHTML = `
+                            <td class="p-4 font-mono text-amber-400 font-bold">${req.userId}</td>
+                            <td class="p-4 font-bold text-white">$${parseFloat(req.amount).toFixed(2)}</td>
+                            <td class="p-4 font-bold text-emerald-400">$${parseFloat(realBalance).toFixed(4)}</td>
+                            <td class="p-4">
+                                <span class="block font-semibold text-slate-200">${req.method}</span>
+                                <span class="block text-slate-400 text-[11px] font-mono">${req.accountDetails}</span>
+                            </td>
+                            <td class="p-4">
+                                <span class="px-2 py-1 rounded text-[10px] font-bold ${req.status === 'Pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : req.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
+                                    ${req.status}
+                                </span>
+                            </td>
+                            <td class="p-4 text-center space-x-2">
+                                ${req.status === 'Pending' ? `
+                                    <button onclick="approveRequest('${reqId}', '${req.userId}', ${req.amount}, '${req.method}', '${req.accountDetails}')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-3 py-1 rounded font-bold transition">Approve & Pay</button>
+                                    <button onclick="rejectRequest('${reqId}')" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded font-bold transition">Reject</button>
+                                ` : '<span class="text-slate-500">-</span>'}
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+
+                document.getElementById('pending-requests-count').innerText = pendingCount;
+                document.getElementById('approved-requests-count').innerText = approvedCount;
+            });
+        }
+
+        // Approve Function
+        function approveRequest(reqId, userId, amount, method, accountDetails) {
+            if (!confirm(`Are you sure you want to approve $${amount} payout for ${userId}?`)) return;
+
+            // 1. Check user real balance
+            database.ref('users/' + userId).once('value').then(snap => {
+                const userData = snap.val() || {};
+                const currentBalance = userData.balance || 0;
+
+                if (currentBalance < amount) {
+                    alert("Error: User balance is lower than the requested amount!");
+                    return;
+                }
+
+                // 2. Deduct balance from User
+                const newBalance = currentBalance - amount;
+                database.ref('users/' + userId).update({ balance: newBalance });
+
+                // 3. Mark request as Approved
+                database.ref('withdrawals/' + reqId).update({
+                    status: 'Approved',
+                    approvedAt: new Date().toISOString()
+                });
+
+                // 4. Trigger Auto Payout via Backend (Optional implementation instruction)
+                alert(`Request Approved! $${amount} deducted from User (${userId}). Status updated.`);
+            });
+        }
+
+        // Reject Function
+        function rejectRequest(reqId) {
+            if (!confirm("Are you sure you want to reject this request?")) return;
+            database.ref('withdrawals/' + reqId).update({ status: 'Rejected' });
+        }
+    </script>
+</body>
+</html>
