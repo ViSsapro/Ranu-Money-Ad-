@@ -9,6 +9,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Google Identity Services Library -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Google AdSense Code (මෙතැනට ඔබේ AdSense Client ID එක යොදන්න) -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_ID" crossorigin="anonymous"></script> -->
+
+    <!-- Firebase SDKs (Compat Versions) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
@@ -150,7 +158,7 @@
                         <span id="user-balance" class="text-sm font-bold text-emerald-400">$0.0000</span>
                     </div>
 
-                    <!-- Dynamic Profile Button (Click to Open Profile Modal) -->
+                    <!-- Dynamic Profile Button -->
                     <button onclick="openProfileModal()" class="flex items-center space-x-2 bg-slate-700/60 hover:bg-slate-700 px-3 py-1 rounded-xl border border-slate-600 transition focus:outline-none">
                         <img id="nav-user-pic" src="" class="w-6 h-6 rounded-full hidden" alt="Profile Pic">
                         <i id="nav-user-icon" class="fa-solid fa-user-circle text-amber-400 text-lg"></i>
@@ -352,6 +360,24 @@
     <!-- JS APPLICATION LOGIC                       -->
     <!-- ========================================== -->
     <script>
+        // -------------------------------------------------------------
+        // FIREBASE CONFIGURATION (ඔබගේ Screenshot එකේ තිබූ Keys එකතු කරන ලදී)
+        // -------------------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVbu5JnB_g0TJy4tb_d2TQUhUaGyIfPIo",
+            authDomain: "ranu-money-ad.firebaseapp.com",
+            databaseURL: "https://ranu-money-ad-default-rtdb.firebaseio.com",
+            projectId: "ranu-money-ad",
+            storageBucket: "ranu-money-ad.firebasestorage.app",
+            messagingSenderId: "257941873299",
+            appId: "1:257941873299:web:d2dd14f8db94299e6e6366",
+            measurementId: "G-BF62675YM6"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         let currentTab = 'login';
         let isLoginOtpSent = false;
         let isRegOtpSent = false;
@@ -362,9 +388,8 @@
 
         const GOOGLE_CLIENT_ID = "664887473384-oh8jv0rbigt8utuhmomn2rmkdgdt5vam.apps.googleusercontent.com";
 
-        // Initialize App & Session Management
+        // Initialize App
         window.onload = function () {
-            // Check if user is already logged in
             const savedName = localStorage.getItem("user_name");
             if (savedName) {
                 loadDashboardView();
@@ -400,6 +425,42 @@
             return userId;
         }
 
+        // Realtime Database එකෙන් User Data Load කිරීම
+        function loadUserDataFromFirebase() {
+            const userId = getOrCreateUserId();
+            const userRef = database.ref('users/' + userId);
+
+            userRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    currentBalance = data.balance || 0.0000;
+                    todayEarning = data.todayEarning || 0.0000;
+                    completedTasksCount = data.completedTasks || 0;
+
+                    document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
+                    document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
+                    document.getElementById('task-count').innerText = completedTasksCount + " / 30";
+                } else {
+                    saveUserDataToFirebase();
+                }
+            });
+        }
+
+        // Firebase වෙත Balance එක Sync කිරීම
+        function saveUserDataToFirebase() {
+            const userId = getOrCreateUserId();
+            const name = localStorage.getItem("user_name") || "User";
+            const email = localStorage.getItem("user_email") || "";
+
+            database.ref('users/' + userId).set({
+                name: name,
+                email: email,
+                balance: currentBalance,
+                todayEarning: todayEarning,
+                completedTasks: completedTasksCount
+            });
+        }
+
         // Switch Auth Form Tabs
         function switchAuthTab(tab) {
             currentTab = tab;
@@ -424,7 +485,7 @@
             }
         }
 
-        // Google Authentication
+        // Google Authentication Logic
         function triggerGoogleSignIn() {
             const hiddenBtn = document.getElementById("hidden-g-btn").querySelector("div[role=button], iframe");
             if (hiddenBtn) {
@@ -459,7 +520,7 @@
             return JSON.parse(jsonPayload);
         }
 
-        // Phone Login Action
+        // Phone Login Handler
         function handlePhoneLogin(e) {
             e.preventDefault();
             const btn = document.getElementById('login-submit-btn');
@@ -481,7 +542,7 @@
             }
         }
 
-        // Registration Action
+        // Registration Handler
         function handleRegister(e) {
             e.preventDefault();
             const btn = document.getElementById('reg-submit-btn');
@@ -504,7 +565,7 @@
             }
         }
 
-        // View Switcher: Show Dashboard and Update Profile Data
+        // Switch to Dashboard View
         function loadDashboardView() {
             document.getElementById('auth-container').classList.add('hidden');
             document.getElementById('dashboard-container').classList.remove('hidden');
@@ -523,9 +584,12 @@
                 imgEl.classList.remove('hidden');
                 document.getElementById('nav-user-icon').classList.add('hidden');
             }
+
+            // Realtime Sync Start
+            loadUserDataFromFirebase();
         }
 
-        // Profile Modal Logic
+        // Profile Modal Handler
         function openProfileModal() {
             const name = localStorage.getItem("user_name") || "User";
             const email = localStorage.getItem("user_email") || "Not Provided";
@@ -561,13 +625,12 @@
             document.getElementById('withdraw-user-id').value = userId;
         }
 
-        // Logout Action
         function handleLogout() {
             localStorage.clear();
             location.reload();
         }
 
-        // Dashboard Tasks Logic
+        // Generate Task UI Elements
         function generateTasks(containerId, titlePrefix, iconClass, color, reward, count) {
             const container = document.getElementById(containerId);
             for (let i = 1; i <= count; i++) {
@@ -610,6 +673,7 @@
             if(tabId === 'withdraw-sec') document.getElementById('btn-withdraw').className = 'py-2 px-4 font-semibold text-amber-400 border-b-2 border-amber-400 transition';
         }
 
+        // Task Complete Action & Auto Save to Database
         function completeTask(buttonEl, reward) {
             buttonEl.disabled = true;
             buttonEl.innerText = "Processing...";
@@ -620,9 +684,13 @@
                 todayEarning += reward;
                 completedTasksCount++;
                 
+                // Realtime UI Update
                 document.getElementById('user-balance').innerText = "$" + currentBalance.toFixed(4);
                 document.getElementById('today-earning').innerText = "$" + todayEarning.toFixed(4);
                 document.getElementById('task-count').innerText = completedTasksCount + " / 30";
+
+                // Save instantly to Firebase
+                saveUserDataToFirebase();
 
                 buttonEl.innerText = "Completed ✓";
                 buttonEl.className = "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold px-4 py-2 rounded-lg text-xs";
