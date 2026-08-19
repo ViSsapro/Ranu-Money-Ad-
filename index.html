@@ -291,7 +291,7 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Your Account User ID</label>
                             <div class="flex space-x-2">
-                                <input type="text" id="withdraw-user-id" readonly class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs font-mono text-amber-400 focus:outline-none">
+                                <input type="text" id="withdraw-user-id" required class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs font-mono text-amber-400 focus:outline-none">
                                 <button type="button" onclick="fillWithdrawID()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-3 py-2.5 rounded-xl border border-slate-700">
                                     Use My ID
                                 </button>
@@ -301,9 +301,9 @@
                         <div>
                             <label class="block text-xs font-semibold text-slate-400 mb-1">Select Payment Gateway</label>
                             <select class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-4 text-xs text-white focus:outline-none">
-                                <option>Binance Pay (Crypto / USDT)</option>
-                                <option>eMoney / Mobile Reload</option>
-                                <option>Bank Transfer (Sri Lanka)</option>
+                                <option value="Binance Pay (Crypto / USDT)">Binance Pay (Crypto / USDT)</option>
+                                <option value="eMoney / Mobile Reload">eMoney / Mobile Reload</option>
+                                <option value="Bank Transfer (Sri Lanka)">Bank Transfer (Sri Lanka)</option>
                             </select>
                         </div>
 
@@ -393,7 +393,7 @@
         };
 
         // ADSTERRA / AD TARGET LINKS CONFIGURATION (ඔබගේ කැමති Direct Ad Link එක මෙතැනට යොදන්න)
-        const DEFAULT_AD_LINK = "https://www.effectivecpmnetwork.com/mrk7afijm?key=5c53b314caafbc9df624f1d0504e6553"; // <-- මෙතැනට Adsterra Direct Link එක දාන්න
+        const DEFAULT_AD_LINK = "https://www.effectivecpmnetwork.com/mrk7afijm?key=5c53b314caafbc9df624f1d0504e6553";
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -742,12 +742,9 @@
             if (type === 'captcha') {
                 openCaptchaModal(buttonEl, reward);
             } else {
-                // Open external site/Ad in a new tab
                 if (targetUrl) {
                     window.open(targetUrl, '_blank');
                 }
-                
-                // Start 10-second countdown in main window
                 startTaskCountdown(buttonEl, reward, 10);
             }
         }
@@ -776,7 +773,6 @@
             activeCaptchaButton = buttonEl;
             activeCaptchaReward = reward;
             
-            // Generate Random 6 Character Alphanumeric Captcha Code
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             generatedCaptchaCode = "";
             for (let i = 0; i < 6; i++) {
@@ -859,11 +855,40 @@
             document.getElementById("copy-msg").classList.remove("hidden");
         }
 
-        // Withdraw Request
+        // Withdraw Request Handler
         function handleWithdraw(e) {
             e.preventDefault();
-            const userId = document.getElementById('withdraw-user-id').value;
-            alert("Withdrawal request for User ID: " + userId + " submitted successfully!");
+            const userId = document.getElementById('withdraw-user-id').value.trim();
+            const method = e.target.querySelector('select').value;
+            const accountDetails = e.target.querySelectorAll('input')[1].value.trim();
+            const amount = parseFloat(e.target.querySelectorAll('input')[2].value);
+
+            if (!amount || amount < 1.00) {
+                alert("Minimum withdrawal is $1.00");
+                return;
+            }
+
+            if (amount > currentBalance) {
+                alert("Insufficient balance!");
+                return;
+            }
+
+            // Push Withdrawal Request to Firebase
+            const newReqRef = database.ref('withdrawals').push();
+            newReqRef.set({
+                userId: userId,
+                method: method,
+                accountDetails: accountDetails,
+                amount: amount,
+                status: 'Pending',
+                requestedAt: new Date().toISOString()
+            }).then(() => {
+                alert("Withdrawal request submitted successfully! Pending Admin approval.");
+                e.target.reset();
+                fillWithdrawID();
+            }).catch((err) => {
+                alert("Error submitting request: " + err.message);
+            });
         }
     </script>
 </body>
