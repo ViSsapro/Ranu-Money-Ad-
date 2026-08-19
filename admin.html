@@ -3,69 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ranu Money Ad - Admin Dashboard</title>
+    <title>Admin Dashboard - Ranu Money Ad</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <header class="bg-slate-900 border-b border-slate-800 p-4 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-amber-400"><i class="fa-solid fa-user-shield mr-2"></i>Admin Control Panel</h1>
-            <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full font-mono">Live System connected</span>
-        </div>
-    </header>
+    <!-- LOGIN CONTAINER (FOR ADMIN ONLY) -->
+    <div id="admin-login-box" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+            <div class="w-16 h-16 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-2xl border border-amber-500/20">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <div>
+                <h1 class="text-2xl font-black text-white">Admin Access Only</h1>
+                <p class="text-xs text-slate-400 mt-1">Authorized email required to view control panel</p>
+            </div>
 
-    <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
-        
-        <!-- Summary Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <span class="text-xs text-slate-400 font-bold uppercase">Total Platform User Balance</span>
-                <h2 id="total-platform-balance" class="text-2xl font-black text-amber-400 mt-1">$0.0000</h2>
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 text-xs text-amber-400 font-mono">
+                vimukthithuhina754@gmail.com
             </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <span class="text-xs text-slate-400 font-bold uppercase">Pending Withdrawals</span>
-                <h2 id="pending-requests-count" class="text-2xl font-black text-blue-400 mt-1">0</h2>
-            </div>
-            <div class="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <span class="text-xs text-slate-400 font-bold uppercase">Total Approved Payouts</span>
-                <h2 id="approved-requests-count" class="text-2xl font-black text-emerald-400 mt-1">0</h2>
-            </div>
-        </div>
 
-        <!-- Withdrawal Requests Table -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
-                <h2 class="font-bold text-sm uppercase tracking-wider text-slate-300">Withdrawal Requests</h2>
-            </div>
-            
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-950/50 text-slate-400 text-xs uppercase border-b border-slate-800">
-                            <th class="p-4">User ID</th>
-                            <th class="p-4">Requested Amt</th>
-                            <th class="p-4">User Real Balance</th>
-                            <th class="p-4">Method / Details</th>
-                            <th class="p-4">Status</th>
-                            <th class="p-4 text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="admin-withdrawals-table" class="divide-y divide-slate-800 text-xs">
-                        <tr>
-                            <td colspan="6" class="p-4 text-center text-slate-500">Loading requests...</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <button onclick="triggerAdminGoogleSignIn()" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold py-3 px-4 rounded-xl flex items-center justify-center space-x-3 transition">
+                <svg class="w-5 h-5" viewBox="0 0 24 24">
+                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.2 9 5 12 5z"/>
+                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 10.8 0 12s.7 2.3 1.9 4.7l3.7-2.9z"/>
+                    <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2.2-6.4-5.2L1.9 16c1.8 3.7 5.6 7 10.1 7z"/>
+                </svg>
+                <span>Sign in as Admin</span>
+            </button>
+
+            <p id="auth-error" class="text-xs text-rose-500 font-bold hidden">Access Denied: You are not authorized!</p>
+            <div id="hidden-g-btn" class="hidden"></div>
         </div>
-    </main>
+    </div>
+
+    <!-- MAIN ADMIN DASHBOARD (HIDDEN UNTIL AUTHENTICATED) -->
+    <div id="admin-dashboard" class="hidden flex-col min-h-screen">
+        <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="bg-amber-500 text-slate-950 font-black px-2 py-1 rounded text-xs">ADMIN</span>
+                <h2 class="font-bold text-white">Ranu Money Ad - Dashboard</h2>
+            </div>
+            <button onclick="adminLogout()" class="text-xs text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-1.5 rounded-lg transition border border-rose-500/20">
+                <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout
+            </button>
+        </header>
+
+        <main class="max-w-7xl w-full mx-auto p-6 space-y-8 flex-grow">
+            <!-- WITHDRAWAL REQUESTS SECTION -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-money-bill-transfer text-amber-400 mr-2"></i>Withdrawal Requests</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                            <tr>
+                                <th class="p-4">User ID</th>
+                                <th class="p-4">Method</th>
+                                <th class="p-4">Account Details</th>
+                                <th class="p-4">Amount</th>
+                                <th class="p-4">Status</th>
+                                <th class="p-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="withdraw-table-body">
+                            <tr><td colspan="6" class="p-4 text-center text-slate-500">Loading requests...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- REGISTERED USERS SECTION -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4"><i class="fa-solid fa-users text-blue-400 mr-2"></i>All Users</h3>
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-x-auto">
+                    <table class="w-full text-left text-xs text-slate-300">
+                        <thead class="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-bold">
+                            <tr>
+                                <th class="p-4">User ID</th>
+                                <th class="p-4">Name</th>
+                                <th class="p-4">Email</th>
+                                <th class="p-4">Balance</th>
+                                <th class="p-4">Tasks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body">
+                            <tr><td colspan="5" class="p-4 text-center text-slate-500">Loading users...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <script>
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyAVbu5JnB_g0TJy4tb_d2TQUhUaGyIfPIo",
             authDomain: "ranu-money-ad.firebaseapp.com",
@@ -73,116 +113,124 @@
             projectId: "ranu-money-ad",
             storageBucket: "ranu-money-ad.firebasestorage.app",
             messagingSenderId: "257941873299",
-            appId: "1:257941873299:web:d2dd14f8db94299e6e6366"
+            appId: "1:257941873299:web:d2dd14f8db94299e6e6366",
+            measurementId: "G-BF62675YM6"
         };
-
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // AUTHORIZED ADMIN EMAIL
+        const AUTHORIZED_EMAIL = "vimukthithuhina754@gmail.com";
+        const GOOGLE_CLIENT_ID = "664887473384-oh8jv0rbigt8utuhmomn2rmkdgdt5vam.apps.googleusercontent.com";
+
         window.onload = function() {
-            loadAdminDashboardData();
+            const savedAdminEmail = localStorage.getItem("admin_email");
+            if (savedAdminEmail === AUTHORIZED_EMAIL) {
+                showAdminDashboard();
+            }
+
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleAdminGoogleAuth
+                });
+                google.accounts.id.renderButton(document.getElementById("hidden-g-btn"), { theme: "outline" });
+            }
         };
 
-        function loadAdminDashboardData() {
-            // Calculate Total Platform Balance & Watch Users
-            database.ref('users').on('value', (snapshot) => {
-                let total = 0;
-                const users = snapshot.val() || {};
-                Object.keys(users).forEach(uid => {
-                    total += (users[uid].balance || 0);
-                });
-                document.getElementById('total-platform-balance').innerText = "$" + total.toFixed(4);
-            });
+        function triggerAdminGoogleSignIn() {
+            const hiddenBtn = document.getElementById("hidden-g-btn").querySelector("div[role=button], iframe");
+            if (hiddenBtn) hiddenBtn.click();
+            else if (typeof google !== 'undefined') google.accounts.id.prompt();
+        }
 
-            // Watch Withdrawals Requests
+        function handleAdminGoogleAuth(response) {
+            const user = parseJwt(response.credential);
+            if (user.email.toLowerCase() === AUTHORIZED_EMAIL.toLowerCase()) {
+                localStorage.setItem("admin_email", user.email);
+                showAdminDashboard();
+            } else {
+                const err = document.getElementById("auth-error");
+                err.innerText = `Access Denied: (${user.email}) is not authorized!`;
+                err.classList.remove("hidden");
+            }
+        }
+
+        function parseJwt(token) {
+            var base64Url = token.split('.')[1];
+            var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            return JSON.parse(jsonPayload);
+        }
+
+        function showAdminDashboard() {
+            document.getElementById("admin-login-box").classList.add("hidden");
+            document.getElementById("admin-dashboard").classList.remove("hidden");
+            document.getElementById("admin-dashboard").classList.add("flex");
+            loadWithdrawals();
+            loadUsers();
+        }
+
+        function adminLogout() {
+            localStorage.removeItem("admin_email");
+            location.reload();
+        }
+
+        // LOAD WITHDRAWAL REQUESTS
+        function loadWithdrawals() {
             database.ref('withdrawals').on('value', (snapshot) => {
-                const requests = snapshot.val() || {};
-                const tbody = document.getElementById('admin-withdrawals-table');
-                tbody.innerHTML = '';
-
-                let pendingCount = 0;
-                let approvedCount = 0;
-
-                const keys = Object.keys(requests);
-                if (keys.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No withdrawal requests found.</td></tr>';
+                const tbody = document.getElementById("withdraw-table-body");
+                tbody.innerHTML = "";
+                const data = snapshot.val();
+                if (!data) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500">No requests found</td></tr>';
                     return;
                 }
-
-                keys.forEach(reqId => {
-                    const req = requests[reqId];
-                    if (req.status === 'Pending') pendingCount++;
-                    if (req.status === 'Approved') approvedCount++;
-
-                    // Fetch user real balance
-                    database.ref('users/' + req.userId).once('value').then(userSnap => {
-                        const userData = userSnap.val() || {};
-                        const realBalance = userData.balance || 0;
-
-                        const tr = document.createElement('tr');
-                        tr.className = "hover:bg-slate-800/40 transition";
-                        tr.innerHTML = `
-                            <td class="p-4 font-mono text-amber-400 font-bold">${req.userId}</td>
-                            <td class="p-4 font-bold text-white">$${parseFloat(req.amount).toFixed(2)}</td>
-                            <td class="p-4 font-bold text-emerald-400">$${parseFloat(realBalance).toFixed(4)}</td>
-                            <td class="p-4">
-                                <span class="block font-semibold text-slate-200">${req.method}</span>
-                                <span class="block text-slate-400 text-[11px] font-mono">${req.accountDetails}</span>
+                Object.keys(data).forEach(key => {
+                    const req = data[key];
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-800">
+                            <td class="p-4 font-mono text-amber-400">${req.userId}</td>
+                            <td class="p-4">${req.method}</td>
+                            <td class="p-4 font-mono">${req.accountDetails}</td>
+                            <td class="p-4 font-bold text-emerald-400">$${req.amount.toFixed(2)}</td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${req.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}">${req.status}</span></td>
+                            <td class="p-4 text-right">
+                                ${req.status === 'Pending' ? `<button onclick="approveWithdraw('${key}')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-3 py-1 rounded text-xs">Approve</button>` : 'Done'}
                             </td>
-                            <td class="p-4">
-                                <span class="px-2 py-1 rounded text-[10px] font-bold ${req.status === 'Pending' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : req.status === 'Approved' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-400 border border-rose-500/30'}">
-                                    ${req.status}
-                                </span>
-                            </td>
-                            <td class="p-4 text-center space-x-2">
-                                ${req.status === 'Pending' ? `
-                                    <button onclick="approveRequest('${reqId}', '${req.userId}', ${req.amount}, '${req.method}', '${req.accountDetails}')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 px-3 py-1 rounded font-bold transition">Approve & Pay</button>
-                                    <button onclick="rejectRequest('${reqId}')" class="bg-rose-500 hover:bg-rose-600 text-white px-3 py-1 rounded font-bold transition">Reject</button>
-                                ` : '<span class="text-slate-500">-</span>'}
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
-                    });
+                        </tr>
+                    `;
                 });
-
-                document.getElementById('pending-requests-count').innerText = pendingCount;
-                document.getElementById('approved-requests-count').innerText = approvedCount;
             });
         }
 
-        // Approve Function
-        function approveRequest(reqId, userId, amount, method, accountDetails) {
-            if (!confirm(`Are you sure you want to approve $${amount} payout for ${userId}?`)) return;
-
-            // 1. Check user real balance
-            database.ref('users/' + userId).once('value').then(snap => {
-                const userData = snap.val() || {};
-                const currentBalance = userData.balance || 0;
-
-                if (currentBalance < amount) {
-                    alert("Error: User balance is lower than the requested amount!");
-                    return;
-                }
-
-                // 2. Deduct balance from User
-                const newBalance = currentBalance - amount;
-                database.ref('users/' + userId).update({ balance: newBalance });
-
-                // 3. Mark request as Approved
-                database.ref('withdrawals/' + reqId).update({
-                    status: 'Approved',
-                    approvedAt: new Date().toISOString()
-                });
-
-                // 4. Trigger Auto Payout via Backend (Optional implementation instruction)
-                alert(`Request Approved! $${amount} deducted from User (${userId}). Status updated.`);
-            });
+        function approveWithdraw(key) {
+            database.ref('withdrawals/' + key).update({ status: 'Approved' });
         }
 
-        // Reject Function
-        function rejectRequest(reqId) {
-            if (!confirm("Are you sure you want to reject this request?")) return;
-            database.ref('withdrawals/' + reqId).update({ status: 'Rejected' });
+        // LOAD ALL USERS
+        function loadUsers() {
+            database.ref('users').on('value', (snapshot) => {
+                const tbody = document.getElementById("users-table-body");
+                tbody.innerHTML = "";
+                const data = snapshot.val();
+                if (!data) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-500">No users found</td></tr>';
+                    return;
+                }
+                Object.keys(data).forEach(id => {
+                    const u = data[id];
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-800">
+                            <td class="p-4 font-mono text-amber-400">${id}</td>
+                            <td class="p-4">${u.name || 'N/A'}</td>
+                            <td class="p-4">${u.email || 'N/A'}</td>
+                            <td class="p-4 font-bold text-emerald-400">$${(u.balance || 0).toFixed(4)}</td>
+                            <td class="p-4">${u.completedTasks || 0}/30</td>
+                        </tr>
+                    `;
+                });
+            });
         }
     </script>
 </body>
